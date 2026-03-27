@@ -10,65 +10,189 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <style>
+/* ============================================================
+   RESET & ROOT
+============================================================ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --ink:#0c0c0e;--paper:#f8f7f4;--cream:#f1ede4;
-  --accent:#d4410b;--accent-light:#fdf0eb;
-  --muted:#7a7672;--muted2:#b5b0a8;
-  --border:#e4dfd7;--border2:#ccc7be;
-  --success:#15803d;--success-bg:#dcfce7;
-  --error:#dc2626;--error-bg:#fee2e2;
-  --shadow-sm:0 1px 3px rgba(0,0,0,.06);
-  --shadow-md:0 4px 16px rgba(0,0,0,.09);
-  --shadow-lg:0 12px 48px rgba(0,0,0,.13);
-  --shadow-xl:0 24px 80px rgba(0,0,0,.16);
-  --r8:8px;--r12:12px;--r16:16px;--r24:24px;--r100:100px;
+  --ink:#0c0c0e;
+  --paper:#f8f7f4;
+  --cream:#f1ede4;
+  --white:#ffffff;
+  --accent:#d4410b;
+  --accent2:#f05a1a;
+  --accent-light:#fdf0eb;
+  --muted:#7a7672;
+  --muted2:#b5b0a8;
+  --border:#e4dfd7;
+  --border2:#ccc7be;
+  --success:#15803d;
+  --success-bg:#dcfce7;
+  --error:#dc2626;
+  --error-bg:#fee2e2;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.09);
+  --shadow-lg:0 12px 48px rgba(0,0,0,0.13);
+  --shadow-xl:0 24px 80px rgba(0,0,0,0.16);
+  --r4:4px;--r8:8px;--r12:12px;--r16:16px;--r24:24px;--r100:100px;
   --topbar:60px;
-  --ease:cubic-bezier(.16,1,.3,1);
+  --ease:cubic-bezier(0.16,1,0.3,1);
   --safe-bottom:env(safe-area-inset-bottom,0px);
 }
 html{scroll-behavior:smooth;}
-body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--paper);color:var(--ink);
+  min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
 ::selection{background:var(--accent);color:#fff;}
 
-/* TOPBAR */
-.topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--topbar);background:rgba(248,247,244,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(14px,4vw,40px);gap:12px;}
-.logo{font-family:'Playfair Display',serif;font-weight:800;font-size:20px;letter-spacing:-.5px;color:var(--ink);text-decoration:none;flex-shrink:0;}
+/* ============================================================
+   TOPBAR
+============================================================ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:var(--topbar);
+  background:rgba(248,247,244,0.97);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:0 clamp(14px,4vw,40px);
+  gap:12px;
+}
+.logo{
+  font-family:'Playfair Display',serif;
+  font-weight:800;font-size:20px;
+  letter-spacing:-0.5px;color:var(--ink);
+  text-decoration:none;flex-shrink:0;
+}
 .logo em{color:var(--accent);font-style:normal;}
-.step-track{display:flex;align-items:center;background:var(--cream);border:1px solid var(--border);border-radius:var(--r100);padding:3px;flex-shrink:1;min-width:0;}
-.step-pill{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--r100);font-size:12px;font-weight:500;color:var(--muted);cursor:default;transition:all .25s var(--ease);white-space:nowrap;border:none;background:none;font-family:'DM Sans',sans-serif;flex-shrink:0;}
-.step-pill.done{color:var(--success);cursor:pointer;}
+
+/* Step progress */
+.step-track{
+  display:flex;align-items:center;
+  background:var(--cream);
+  border:1px solid var(--border);
+  border-radius:var(--r100);
+  padding:3px;
+  overflow:hidden;
+  flex-shrink:1;
+  min-width:0;
+}
+.step-pill{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:var(--r100);
+  font-size:12px;font-weight:500;
+  color:var(--muted);cursor:default;
+  transition:all 0.25s var(--ease);
+  white-space:nowrap;border:none;background:none;
+  font-family:'DM Sans',sans-serif;
+  flex-shrink:0;
+}
+.step-pill.clickable{cursor:pointer;}
+.step-pill.clickable:hover{color:var(--ink);}
 .step-pill.active{background:var(--ink);color:#fff;box-shadow:var(--shadow-md);}
-.step-dot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;background:currentColor;flex-shrink:0;}
+.step-pill.done{color:var(--success);cursor:pointer;}
+.step-dot{
+  width:18px;height:18px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;
+  background:currentColor;flex-shrink:0;
+}
 .step-dot span{color:#fff;}
-.step-pill.active .step-dot{background:rgba(255,255,255,.2);}
+.step-pill.active .step-dot{background:rgba(255,255,255,0.2);}
 .step-pill.done .step-dot{background:var(--success);}
 .step-sep{width:20px;height:1px;background:var(--border2);flex-shrink:0;margin:0 1px;}
-@media(max-width:600px){.step-label{display:none;}.step-pill{padding:6px 9px;}.step-sep{width:10px;}.topbar{padding:0 12px;}}
-.progress-line{position:fixed;top:var(--topbar);left:0;height:2px;background:var(--accent);width:33%;transition:width .5s var(--ease);z-index:199;}
-.autosave{font-size:11px;color:var(--success);display:flex;align-items:center;gap:4px;opacity:0;transition:opacity .3s;flex-shrink:0;white-space:nowrap;}
+
+@media(max-width:600px){
+  .step-label{display:none;}
+  .step-pill{padding:6px 9px;}
+  .step-sep{width:10px;}
+  .topbar{padding:0 12px;}
+}
+
+/* Progress bar */
+.progress-line{
+  position:fixed;top:var(--topbar);left:0;
+  height:2px;background:var(--accent);
+  width:33%;transition:width 0.5s var(--ease);z-index:199;
+}
+
+/* Autosave */
+.autosave{
+  font-size:11px;color:var(--success);
+  display:flex;align-items:center;gap:4px;
+  opacity:0;transition:opacity 0.3s;flex-shrink:0;
+  white-space:nowrap;
+}
 .autosave.show{opacity:1;}
 
-/* PAGES */
+/* ============================================================
+   PAGES
+============================================================ */
 .pages{padding-top:var(--topbar);}
 .page{display:none;}
-.page.active{display:block;animation:pageIn .3s var(--ease);}
+.page.active{display:block;animation:pageIn 0.3s var(--ease);}
 @keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* PAGE 1 */
-.p1-shell{display:grid;grid-template-columns:1fr 300px;min-height:calc(100vh - var(--topbar));}
+/* ============================================================
+   PAGE 1 — DETAILS
+============================================================ */
+.p1-shell{
+  display:grid;
+  grid-template-columns:1fr 300px;
+  min-height:calc(100vh - var(--topbar));
+}
 @media(max-width:900px){.p1-shell{grid-template-columns:1fr;}}
-.form-pane{padding:clamp(20px,4vw,48px);border-right:1px solid var(--border);padding-bottom:calc(90px + var(--safe-bottom));}
-@media(max-width:900px){.form-pane{border-right:none;padding-bottom:calc(100px + var(--safe-bottom));}}
 
-/* Collapsible */
-.sec-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-top:36px;padding:10px 0;user-select:none;-webkit-user-select:none;}
+.form-pane{
+  padding:clamp(20px,4vw,48px);
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  /* Mobile: add bottom padding for sticky footer */
+  padding-bottom:calc(90px + var(--safe-bottom));
+}
+@media(max-width:900px){
+  .form-pane{border-right:none;padding-bottom:calc(100px + var(--safe-bottom));}
+}
+
+/* Collapsible section */
+.sec-header{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;
+  margin-top:36px;margin-bottom:0;
+  padding:10px 0;
+  user-select:none;
+  -webkit-user-select:none;
+}
 .sec-header:first-child{margin-top:0;}
-.sec-label{font-family:'Playfair Display',serif;font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;gap:10px;flex:1;}
+.sec-label{
+  font-family:'Playfair Display',serif;
+  font-size:12px;font-weight:700;
+  color:var(--accent);
+  text-transform:uppercase;letter-spacing:2px;
+  display:flex;align-items:center;gap:10px;
+  flex:1;
+}
 .sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
-.sec-toggle{width:28px;height:28px;border-radius:50%;background:var(--cream);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted);transition:transform .2s,background .2s;flex-shrink:0;margin-left:10px;line-height:1;}
+.sec-toggle{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--cream);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--muted);
+  transition:transform 0.2s,background 0.2s;
+  flex-shrink:0;margin-left:10px;
+  line-height:1;
+}
 .sec-header.open .sec-toggle{transform:rotate(45deg);background:var(--accent-light);color:var(--accent);}
-.sec-body{overflow:hidden;transition:max-height .35s var(--ease),opacity .3s;max-height:0;opacity:0;}
+.sec-body{
+  overflow:hidden;
+  transition:max-height 0.35s var(--ease),opacity 0.3s;
+  max-height:0;opacity:0;
+}
 .sec-body.open{max-height:9999px;opacity:1;padding-top:16px;}
 
 /* Fields */
@@ -76,66 +200,152 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .row.full{grid-template-columns:1fr;}
 @media(max-width:480px){.row{grid-template-columns:1fr;gap:10px;}}
 .field{display:flex;flex-direction:column;gap:5px;}
-.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+.field label{
+  font-size:11px;font-weight:600;
+  color:var(--muted);letter-spacing:0.5px;
+  text-transform:uppercase;
+}
 .field label .req{color:var(--accent);}
-input,textarea{padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r8);font-family:'DM Sans',sans-serif;font-size:15px;background:#fff;color:var(--ink);transition:border-color .2s,box-shadow .2s;outline:none;width:100%;}
-@media(max-width:768px){input,textarea{font-size:16px;}}
-input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,65,11,.1);}
-input.err{border-color:var(--error);box-shadow:0 0 0 3px rgba(220,38,38,.08);}
+input,textarea,select{
+  padding:12px 14px;
+  border:1.5px solid var(--border);
+  border-radius:var(--r8);
+  font-family:'DM Sans',sans-serif;
+  font-size:15px;background:#fff;color:var(--ink);
+  transition:border-color 0.2s,box-shadow 0.2s;
+  outline:none;width:100%;
+  /* Prevent zoom on iOS */
+  -webkit-text-size-adjust:100%;
+}
+/* iOS font size fix - prevent zoom */
+@media(max-width:768px){
+  input,textarea,select{font-size:16px;}
+}
+input:focus,textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(212,65,11,0.1);
+}
+input.err{border-color:var(--error);box-shadow:0 0 0 3px rgba(220,38,38,0.08);}
 .errmsg{font-size:11px;color:var(--error);display:none;margin-top:2px;}
 .errmsg.show{display:block;}
 textarea{resize:vertical;min-height:80px;line-height:1.6;}
 input[type=file]{display:none;}
 
-/* Upload zones */
-.upload-zone{width:100%;height:88px;border:2px dashed var(--border);border-radius:var(--r12);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;background:var(--cream);color:var(--muted);font-size:13px;font-weight:500;transition:all .2s;touch-action:manipulation;}
-.upload-zone:hover,.upload-zone:active{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
-.upload-zone.sig-zone{height:68px;}
-.upload-zone img.photo-thumb{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--border);}
-.upload-zone img.sig-thumb{max-height:46px;max-width:150px;object-fit:contain;}
+/* Photo upload */
+.photo-zone{
+  width:100%;height:88px;
+  border:2px dashed var(--border);
+  border-radius:var(--r12);
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;cursor:pointer;
+  background:var(--cream);color:var(--muted);
+  font-size:13px;font-weight:500;
+  transition:all 0.2s;
+  touch-action:manipulation;
+}
+.photo-zone:hover,.photo-zone:active{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.photo-zone img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--border);}
 
-/* Entries */
-.entry{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:16px;margin-bottom:10px;position:relative;animation:pageIn .2s var(--ease);transition:opacity .2s,transform .2s;}
-.entry.removing{opacity:0;transform:translateY(-6px);}
-.entry.custom-entry{border-left:3px solid var(--accent);}
-.entry-del{position:absolute;top:10px;right:10px;width:26px;height:26px;background:var(--error-bg);color:var(--error);border:none;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .2s;line-height:1;touch-action:manipulation;}
-.entry-del:hover{background:#fca5a5;}
-.add-btn{width:100%;padding:12px;border:1.5px dashed var(--border);border-radius:var(--r8);background:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--muted);transition:all .2s;touch-action:manipulation;}
-.add-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
-.add-btn.accent-btn{border-color:var(--accent);color:var(--accent);}
-.overflow-warn{display:none;background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r8);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#9a3412;align-items:center;gap:8px;}
-.overflow-warn.show{display:flex;}
+/* Entry cards */
+.entry{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--r12);padding:16px;
+  margin-bottom:10px;position:relative;
+  animation:pageIn 0.2s var(--ease);
+}
+.entry-del{
+  position:absolute;top:10px;right:10px;
+  width:26px;height:26px;
+  background:var(--error-bg);color:var(--error);
+  border:none;border-radius:50%;cursor:pointer;
+  font-size:18px;display:flex;align-items:center;justify-content:center;
+  transition:background 0.2s;line-height:1;
+  touch-action:manipulation;
+}
+.entry-del:hover,.entry-del:active{background:#fca5a5;}
+.add-btn{
+  width:100%;padding:12px;
+  border:1.5px dashed var(--border);border-radius:var(--r8);
+  background:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  color:var(--muted);transition:all 0.2s;
+  touch-action:manipulation;
+}
+.add-btn:hover,.add-btn:active{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
 
-/* Locked preview overlay */
-.preview-lock{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(248,247,244,0.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:var(--r16);}
-.preview-lock-icon{width:64px;height:64px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-lg);}
-.preview-lock-icon svg{color:#fff;}
-.preview-lock h3{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:var(--ink);text-align:center;line-height:1.3;}
-.preview-lock p{font-size:13px;color:var(--muted);text-align:center;max-width:220px;line-height:1.5;}
-.preview-lock .pay-btn-sm{padding:12px 24px;border-radius:var(--r100);background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;transition:all .2s var(--ease);touch-action:manipulation;}
-.preview-lock .pay-btn-sm:hover{background:#b83509;transform:translateY(-1px);box-shadow:0 8px 24px rgba(212,65,11,.35);}
-/* Blur the resume under the lock */
-.resume-shell.locked #resumeScaler{filter:blur(6px);pointer-events:none;user-select:none;}
-
-/* Mobile footer */
-.form-foot-sticky{display:none;position:fixed;bottom:0;left:0;right:0;padding:12px 16px;padding-bottom:calc(12px + var(--safe-bottom));background:rgba(248,247,244,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--border);z-index:150;gap:10px;align-items:center;}
+/* ============================================================
+   STICKY MOBILE FOOTER
+============================================================ */
+.form-foot-sticky{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  padding:12px 16px;
+  padding-bottom:calc(12px + var(--safe-bottom));
+  background:rgba(248,247,244,0.97);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--border);
+  z-index:150;
+  gap:10px;
+  align-items:center;
+}
 @media(max-width:900px){.form-foot-sticky{display:flex;}}
 .foot-hint{font-size:11px;color:var(--muted);flex:1;line-height:1.4;}
-.form-foot-desktop{margin-top:36px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;align-items:center;gap:12px;}
+.form-foot-desktop{
+  margin-top:36px;padding-top:24px;
+  border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;align-items:center;gap:12px;
+}
 @media(max-width:900px){.form-foot-desktop{display:none;}}
 
 /* Buttons */
-.btn{padding:13px 26px;border-radius:var(--r100);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s var(--ease);display:inline-flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation;white-space:nowrap;}
+.btn{
+  padding:13px 26px;border-radius:var(--r100);
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:600;
+  cursor:pointer;border:none;
+  transition:all 0.2s var(--ease);
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:0.2px;
+  touch-action:manipulation;
+  white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-sm{padding:10px 20px;font-size:13px;}
 .btn-dark{background:var(--ink);color:#fff;}
 .btn-dark:hover{background:#222235;transform:translateY(-1px);box-shadow:var(--shadow-md);}
-.btn-dark:active{transform:translateY(0);}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none !important;}
+.btn-dark:active{transform:translateY(0);box-shadow:none;}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-accent:hover{background:#b83509;transform:translateY(-2px);box-shadow:0 8px 24px rgba(212,65,11,0.35);}
+.btn-accent:active{transform:translateY(0);}
+.btn-ghost{background:none;border:1.5px solid var(--border);color:var(--ink);}
+.btn-ghost:hover{border-color:var(--ink);}
+.btn:disabled{opacity:0.45;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
 
-/* Preview pane */
-.preview-pane{background:var(--cream);padding:32px 20px;display:flex;flex-direction:column;align-items:center;position:sticky;top:var(--topbar);height:calc(100vh - var(--topbar));overflow-y:auto;}
+/* ============================================================
+   LIVE PREVIEW PANE (desktop only)
+============================================================ */
+.preview-pane{
+  background:var(--cream);
+  padding:32px 20px;
+  display:flex;flex-direction:column;align-items:center;
+  position:sticky;top:var(--topbar);
+  height:calc(100vh - var(--topbar));
+  overflow-y:auto;
+}
 @media(max-width:900px){.preview-pane{display:none;}}
-.preview-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;}
-.mini-card{width:210px;background:#fff;border-radius:var(--r12);box-shadow:var(--shadow-xl);overflow:hidden;padding:20px;font-size:7px;line-height:1.5;}
+.preview-label{
+  font-size:10px;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);
+  margin-bottom:18px;
+}
+.mini-card{
+  width:210px;background:#fff;
+  border-radius:var(--r12);
+  box-shadow:var(--shadow-xl);
+  overflow:hidden;padding:20px;
+  font-size:7px;line-height:1.5;
+}
 .mp-name{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;margin-bottom:2px;word-break:break-word;}
 .mp-title{font-size:7px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:9px;}
 .mp-hr{height:1px;background:var(--border);margin:7px 0;}
@@ -143,203 +353,476 @@ input[type=file]{display:none;}
 .mp-txt{font-size:6.5px;color:#555;line-height:1.65;}
 .preview-hint{font-size:11px;color:var(--muted2);margin-top:12px;}
 
-/* Page 2 */
+/* ============================================================
+   PAGE 2 — TEMPLATES
+============================================================ */
 .p2-wrap{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,48px);}
-.page-h{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,48px);font-weight:800;letter-spacing:-1.5px;margin-bottom:6px;line-height:1.1;}
+.page-h{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(28px,5vw,48px);
+  font-weight:800;letter-spacing:-1.5px;
+  margin-bottom:6px;line-height:1.1;
+}
 .page-sub{color:var(--muted);font-size:14px;margin-bottom:32px;line-height:1.5;}
-.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:24px;background:none;border:none;font-family:'DM Sans',sans-serif;transition:color .2s;padding:8px 0;touch-action:manipulation;}
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--muted);font-size:13px;font-weight:500;
+  cursor:pointer;margin-bottom:24px;
+  background:none;border:none;font-family:'DM Sans',sans-serif;
+  transition:color 0.2s;padding:8px 0;
+  touch-action:manipulation;
+}
 .back-btn:hover{color:var(--ink);}
-.tpl-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+.tpl-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:16px;
+}
 @media(max-width:1100px){.tpl-grid{grid-template-columns:repeat(4,1fr);}}
 @media(max-width:800px){.tpl-grid{grid-template-columns:repeat(3,1fr);gap:12px;}}
 @media(max-width:500px){.tpl-grid{grid-template-columns:repeat(2,1fr);gap:10px;}}
-.tpl-card{border-radius:var(--r12);overflow:hidden;cursor:pointer;border:2.5px solid transparent;transition:transform .25s var(--ease),box-shadow .25s,border-color .2s;background:#fff;box-shadow:var(--shadow-sm);position:relative;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+.tpl-card{
+  border-radius:var(--r12);overflow:hidden;cursor:pointer;
+  border:2.5px solid transparent;
+  transition:transform 0.25s var(--ease),box-shadow 0.25s,border-color 0.2s;
+  background:#fff;box-shadow:var(--shadow-sm);position:relative;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
 @media(hover:hover){.tpl-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);}}
-.tpl-card:active{transform:scale(.97);}
-.tpl-card.selected{border-color:var(--accent);box-shadow:0 0 0 4px rgba(212,65,11,.14),var(--shadow-md);}
+.tpl-card:active{transform:scale(0.97);}
+.tpl-card.selected{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(212,65,11,0.14),var(--shadow-md);
+}
 .tpl-thumb{aspect-ratio:3/4;overflow:hidden;}
-.tpl-thumb-inner{width:100%;height:100%;transition:transform .4s;}
+.tpl-thumb-inner{width:100%;height:100%;transition:transform 0.4s;}
 @media(hover:hover){.tpl-card:hover .tpl-thumb-inner{transform:scale(1.04);}}
-.tpl-badge{position:absolute;top:7px;right:7px;padding:3px 9px;border-radius:var(--r100);font-size:9px;font-weight:700;z-index:1;}
+.tpl-badge{
+  position:absolute;top:7px;right:7px;
+  padding:3px 9px;border-radius:var(--r100);
+  font-size:9px;font-weight:700;z-index:1;
+}
 .badge-free{background:var(--success-bg);color:var(--success);}
 .badge-paid{background:var(--error-bg);color:var(--error);}
-.tpl-check{position:absolute;top:7px;left:7px;width:24px;height:24px;background:var(--accent);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:12px;z-index:1;box-shadow:0 2px 8px rgba(212,65,11,.4);}
+.tpl-check{
+  position:absolute;top:7px;left:7px;
+  width:24px;height:24px;
+  background:var(--accent);border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  color:#fff;font-size:12px;z-index:1;
+  box-shadow:0 2px 8px rgba(212,65,11,0.4);
+}
 .tpl-card.selected .tpl-check{display:flex;}
 .tpl-name{padding:9px 11px 3px;font-size:12px;font-weight:600;line-height:1.3;}
 .tpl-price{padding:0 11px 10px;font-size:10px;color:var(--muted);}
-.p2-foot{margin-top:32px;padding-top:24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.p2-foot{
+  margin-top:32px;padding-top:24px;
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  flex-wrap:wrap;
+}
 .sel-info{font-size:13px;color:var(--muted);}
 .sel-info b{color:var(--ink);}
 
-/* Page 3 */
+/* ============================================================
+   PAGE 3 — PREVIEW & DOWNLOAD
+============================================================ */
 .p3-wrap{max-width:1080px;margin:0 auto;padding:clamp(16px,4vw,48px);}
-.p3-grid{display:grid;grid-template-columns:1fr 350px;gap:32px;align-items:start;}
+.p3-grid{
+  display:grid;grid-template-columns:1fr 350px;
+  gap:32px;align-items:start;
+}
 @media(max-width:900px){.p3-grid{grid-template-columns:1fr;}}
-.resume-shell{background:#fff;border-radius:var(--r16);box-shadow:var(--shadow-xl);overflow:hidden;position:relative;}
-.resume-shell::after{content:'';position:absolute;bottom:0;left:0;right:0;height:48px;background:linear-gradient(transparent,rgba(255,255,255,.95));pointer-events:none;opacity:0;transition:opacity .3s;}
-.resume-shell.overflowing::after{opacity:1;}
-.mobile-preview-msg{display:none;padding:32px 24px;text-align:center;}
+
+/* Mobile resume preview */
+.resume-shell{
+  background:#fff;border-radius:var(--r16);
+  box-shadow:var(--shadow-xl);overflow:hidden;
+  position:relative;
+}
+.mobile-preview-msg{
+  display:none;
+  padding:32px 24px;text-align:center;
+}
 .mobile-preview-msg p{color:var(--muted);font-size:14px;line-height:1.65;margin-bottom:20px;}
-@media(max-width:900px){.mobile-preview-msg{display:block;}#resumeScaler{display:none;}}
+@media(max-width:900px){
+  .mobile-preview-msg{display:block;}
+  #resumeScaler{display:none;}
+}
+
 #resumeOut{width:100%;}
-.sidebar-card{background:#fff;border-radius:var(--r12);border:1px solid var(--border);padding:22px;margin-bottom:14px;}
-.sidebar-card h3{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;margin-bottom:12px;}
-.tpl-name-big{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:5px;}
-.price-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:var(--r100);font-weight:700;font-size:12px;margin-bottom:18px;}
+
+.sidebar-card{
+  background:#fff;border-radius:var(--r12);
+  border:1px solid var(--border);
+  padding:22px;margin-bottom:14px;
+}
+.sidebar-card h3{
+  font-family:'Playfair Display',serif;
+  font-size:15px;font-weight:700;margin-bottom:12px;
+}
+.tpl-name-big{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:5px;
+}
+.price-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 14px;border-radius:var(--r100);
+  font-weight:700;font-size:12px;margin-bottom:18px;
+}
 .chip-free{background:var(--success-bg);color:var(--success);}
 .chip-paid{background:var(--accent-light);color:var(--accent);border:1.5px solid var(--accent);}
-.dl-btn{width:100%;padding:16px;border-radius:var(--r12);background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Playfair Display',serif;font-size:16px;font-weight:700;transition:all .2s var(--ease);display:flex;align-items:center;justify-content:center;gap:10px;touch-action:manipulation;}
-.dl-btn:hover:not(:disabled){background:#b83509;transform:translateY(-2px);box-shadow:0 10px 32px rgba(212,65,11,.35);}
+
+.dl-btn{
+  width:100%;padding:16px;border-radius:var(--r12);
+  background:var(--accent);color:#fff;border:none;cursor:pointer;
+  font-family:'Playfair Display',serif;
+  font-size:16px;font-weight:700;
+  transition:all 0.2s var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  letter-spacing:0.2px;
+  touch-action:manipulation;
+}
+.dl-btn:hover:not(:disabled){background:#b83509;transform:translateY(-2px);box-shadow:0 10px 32px rgba(212,65,11,0.35);}
 .dl-btn:active:not(:disabled){transform:translateY(0);}
 .dl-btn:disabled{background:var(--muted2);cursor:not-allowed;transform:none;}
-.pay-btn{width:100%;padding:15px;border-radius:var(--r12);background:var(--ink);color:#fff;border:none;cursor:pointer;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;transition:all .2s var(--ease);display:flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation;}
+.pay-btn{
+  width:100%;padding:15px;border-radius:var(--r12);
+  background:var(--ink);color:#fff;border:none;cursor:pointer;
+  font-family:'Playfair Display',serif;
+  font-size:15px;font-weight:700;
+  transition:all 0.2s var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  touch-action:manipulation;
+}
 .pay-btn:hover{background:#222235;transform:translateY(-1px);box-shadow:var(--shadow-md);}
 .tip{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;line-height:1.5;}
-.detail-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;padding:4px 0;color:var(--muted);line-height:1.5;}
+
+.detail-row{
+  display:flex;align-items:flex-start;gap:8px;
+  font-size:12px;padding:4px 0;color:var(--muted);line-height:1.5;
+}
 .detail-row span:last-child{color:var(--ink);font-weight:500;word-break:break-all;}
-.skill-pill{display:inline-block;padding:4px 12px;border-radius:var(--r100);background:var(--cream);font-size:11px;margin:2px;border:1px solid var(--border);font-weight:500;}
+.skill-pill{
+  display:inline-block;padding:4px 12px;border-radius:var(--r100);
+  background:var(--cream);font-size:11px;margin:2px;
+  border:1px solid var(--border);font-weight:500;
+}
 
-/* Overlays / modals */
-.overlay{display:none;position:fixed;inset:0;background:rgba(12,12,14,.7);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(6px);padding:20px;}
-.overlay.open{display:flex;animation:fadeIn .2s ease;}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{background:#fff;border-radius:var(--r24);padding:clamp(24px,5vw,40px);width:100%;max-width:420px;animation:pageIn .25s var(--ease);position:relative;}
-.modal-x{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:var(--cream);border:none;cursor:pointer;font-size:18px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:background .2s;touch-action:manipulation;}
-.modal-x:hover{background:var(--border);}
-.modal-icon{font-size:36px;margin-bottom:12px;}
-.modal h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px;}
-.modal-sub{color:var(--muted);font-size:13px;line-height:1.65;}
-
-/* Pay loading */
-.pay-loading{display:none;position:fixed;inset:0;background:rgba(12,12,14,.65);z-index:600;align-items:center;justify-content:center;}
+/* ============================================================
+   RAZORPAY LOADING STATE
+============================================================ */
+.pay-loading{
+  display:none;position:fixed;inset:0;
+  background:rgba(12,12,14,0.6);z-index:600;
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:16px;
+}
 .pay-loading.open{display:flex;}
-.pay-loading-box{background:#fff;border-radius:var(--r16);padding:36px 44px;text-align:center;box-shadow:var(--shadow-xl);}
-.pay-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+.pay-loading-box{
+  background:#fff;border-radius:var(--r16);
+  padding:32px 40px;text-align:center;
+  box-shadow:var(--shadow-xl);
+}
+.pay-spinner{
+  width:40px;height:40px;
+  border:3px solid var(--border);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  margin:0 auto 16px;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
 .pay-loading-box p{font-size:13px;color:var(--muted);}
 .pay-loading-box b{font-family:'Playfair Display',serif;font-size:16px;display:block;margin-bottom:4px;}
 
-/* PDF loading */
-.pdf-loading{display:none;position:fixed;inset:0;background:rgba(248,247,244,.93);z-index:700;align-items:center;justify-content:center;flex-direction:column;gap:14px;backdrop-filter:blur(4px);}
+/* ============================================================
+   SUCCESS MODAL
+============================================================ */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(12,12,14,0.7);z-index:500;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);padding:20px;
+}
+.overlay.open{display:flex;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:#fff;border-radius:var(--r24);
+  padding:clamp(24px,5vw,40px);
+  width:100%;max-width:420px;
+  animation:pageIn 0.25s var(--ease);
+  position:relative;
+}
+.modal-x{
+  position:absolute;top:14px;right:14px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--cream);border:none;cursor:pointer;
+  font-size:18px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.2s;
+  touch-action:manipulation;
+}
+.modal-x:hover{background:var(--border);}
+.modal-icon{font-size:36px;margin-bottom:12px;}
+.modal h2{
+  font-family:'Playfair Display',serif;
+  font-size:24px;font-weight:800;margin-bottom:6px;letter-spacing:-0.5px;
+}
+.modal-sub{color:var(--muted);font-size:13px;margin-bottom:0;line-height:1.65;}
+
+/* ============================================================
+   TOAST
+============================================================ */
+#toast{
+  position:fixed;bottom:calc(28px + var(--safe-bottom));left:50%;
+  transform:translateX(-50%) translateY(90px);
+  background:var(--ink);color:#fff;
+  padding:12px 24px;border-radius:var(--r100);
+  font-size:13px;font-weight:500;
+  z-index:999;transition:transform 0.35s var(--ease);
+  pointer-events:none;white-space:nowrap;
+  box-shadow:var(--shadow-lg);
+  max-width:calc(100vw - 32px);
+  text-align:center;
+  white-space:normal;
+}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ============================================================
+   TEMPLATE THUMB VISUALS
+============================================================ */
+.tv{width:100%;height:100%;overflow:hidden;font-family:sans-serif;}
+
+/* ============================================================
+   LOADING OVERLAY (PDF gen)
+============================================================ */
+.pdf-loading{
+  display:none;position:fixed;inset:0;
+  background:rgba(248,247,244,0.9);z-index:700;
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;
+  backdrop-filter:blur(4px);
+}
 .pdf-loading.open{display:flex;}
 .pdf-loading p{font-size:14px;color:var(--muted);font-weight:500;}
-.pdf-loading .spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+.pdf-loading .spinner{
+  width:44px;height:44px;
+  border:3px solid var(--border);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
 
-/* Toast */
-#toast{position:fixed;bottom:calc(28px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(90px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:var(--r100);font-size:13px;font-weight:500;z-index:999;transition:transform .35s var(--ease);pointer-events:none;box-shadow:var(--shadow-lg);max-width:calc(100vw - 32px);display:flex;align-items:center;gap:10px;}
-#toast.show{transform:translateX(-50%) translateY(0);pointer-events:auto;}
-#toast-undo{padding:4px 12px;border-radius:var(--r100);background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;display:none;font-family:'DM Sans',sans-serif;touch-action:manipulation;}
-#toast-undo.show{display:inline-block;}
-#toast-undo:hover{background:rgba(255,255,255,.32);}
-.tv{width:100%;height:100%;overflow:hidden;font-family:sans-serif;}
+/* Accessibility */
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 </style>
 </head>
 <body>
 
 <div class="progress-line" id="progressLine"></div>
-<div id="toast"><span id="toast-msg"></span><button id="toast-undo" onclick="undoRemove()">Undo</button></div>
-<div class="pdf-loading" id="pdfLoading"><div class="spinner"></div><p>Generating your ATS-ready PDF…</p></div>
-<div class="pay-loading" id="payLoading"><div class="pay-loading-box"><div class="pay-spinner"></div><b>Opening Razorpay</b><p>Secure payment window loading…</p></div></div>
+<div id="toast"></div>
 
-<!-- TOPBAR -->
+<!-- PDF Loading overlay -->
+<div class="pdf-loading" id="pdfLoading">
+  <div class="spinner"></div>
+  <p>Generating your ATS-ready PDF…</p>
+</div>
+
+<!-- Razorpay loading -->
+<div class="pay-loading" id="payLoading">
+  <div class="pay-loading-box">
+    <div class="pay-spinner"></div>
+    <b>Opening Razorpay</b>
+    <p>Secure payment window loading…</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     TOPBAR
+============================================================ -->
 <header class="topbar">
   <a class="logo" href="#" onclick="return false">CV<em>Craft</em></a>
   <nav class="step-track" role="navigation" aria-label="Resume builder steps">
     <button class="step-pill active" id="sp1" onclick="tryGo(1)" aria-label="Step 1: Details">
-      <div class="step-dot"><span>1</span></div><span class="step-label">Details</span>
+      <div class="step-dot"><span>1</span></div>
+      <span class="step-label">Details</span>
     </button>
     <div class="step-sep" aria-hidden="true"></div>
     <button class="step-pill" id="sp2" onclick="tryGo(2)" disabled aria-label="Step 2: Templates">
-      <div class="step-dot"><span>2</span></div><span class="step-label">Templates</span>
+      <div class="step-dot"><span>2</span></div>
+      <span class="step-label">Templates</span>
     </button>
     <div class="step-sep" aria-hidden="true"></div>
     <button class="step-pill" id="sp3" onclick="tryGo(3)" disabled aria-label="Step 3: Download">
-      <div class="step-dot"><span>3</span></div><span class="step-label">Download</span>
+      <div class="step-dot"><span>3</span></div>
+      <span class="step-label">Download</span>
     </button>
   </nav>
   <div class="autosave" id="autosave" aria-live="polite">
-    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Saved
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+    Saved
   </div>
 </header>
 
 <main class="pages">
 
-<!-- PAGE 1 -->
+<!-- ============================================================
+     PAGE 1 — DETAILS
+============================================================ -->
 <div class="page active" id="page1">
   <div class="p1-shell">
     <div class="form-pane">
 
+      <!-- PERSONAL INFO -->
       <div class="sec-header open" onclick="toggleSec(this)" role="button" aria-expanded="true" tabindex="0" onkeydown="if(event.key==='Enter')toggleSec(this)">
-        <div class="sec-label">Personal Info</div><div class="sec-toggle">+</div>
+        <div class="sec-label">Personal Info</div>
+        <div class="sec-toggle">+</div>
       </div>
-      <div class="sec-body open">
+      <div class="sec-body open" id="sec_personal">
         <div class="row full" style="margin-bottom:14px;">
           <div class="field">
             <label>Profile Photo</label>
-            <div class="upload-zone" id="photoZone" onclick="document.getElementById('photoIn').click()" tabindex="0" role="button" aria-label="Upload profile photo" onkeydown="if(event.key==='Enter')this.click()">
-              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div class="photo-zone" id="photoZone" onclick="document.getElementById('photoIn').click()" tabindex="0" role="button" aria-label="Upload profile photo" onkeydown="if(event.key==='Enter')document.getElementById('photoIn').click()">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               <span id="photoLbl">Upload photo (optional)</span>
             </div>
             <input type="file" id="photoIn" accept="image/*" onchange="handlePhoto(this)">
           </div>
         </div>
         <div class="row">
-          <div class="field"><label for="fn">Full Name <span class="req">*</span></label><input id="fn" placeholder="Arjun Sharma" oninput="debLive()" autocomplete="name" aria-required="true"><span class="errmsg" id="e_fn">Full name is required</span></div>
-          <div class="field"><label for="ft">Job Title <span class="req">*</span></label><input id="ft" placeholder="Frontend Developer" oninput="debLive()" aria-required="true"><span class="errmsg" id="e_ft">Job title is required</span></div>
+          <div class="field">
+            <label for="fn">Full Name <span class="req" aria-label="required">*</span></label>
+            <input id="fn" placeholder="Arjun Sharma" oninput="debLive()" autocomplete="name" aria-required="true">
+            <span class="errmsg" id="e_fn" role="alert">Full name is required</span>
+          </div>
+          <div class="field">
+            <label for="ft">Job Title <span class="req" aria-label="required">*</span></label>
+            <input id="ft" placeholder="Frontend Developer" oninput="debLive()" aria-required="true">
+            <span class="errmsg" id="e_ft" role="alert">Job title is required</span>
+          </div>
         </div>
         <div class="row">
-          <div class="field"><label for="fe">Email <span class="req">*</span></label><input id="fe" type="email" placeholder="arjun@email.com" oninput="debLive()" autocomplete="email" inputmode="email" aria-required="true"><span class="errmsg" id="e_fe">Valid email required</span></div>
-          <div class="field"><label for="fp">Phone</label><input id="fp" type="tel" placeholder="+91 98765 43210" oninput="debLive()" autocomplete="tel" inputmode="tel"></div>
+          <div class="field">
+            <label for="fe">Email <span class="req" aria-label="required">*</span></label>
+            <input id="fe" type="email" placeholder="arjun@email.com" oninput="debLive()" autocomplete="email" inputmode="email" aria-required="true">
+            <span class="errmsg" id="e_fe" role="alert">Valid email required</span>
+          </div>
+          <div class="field">
+            <label for="fp">Phone</label>
+            <input id="fp" type="tel" placeholder="+91 98765 43210" oninput="debLive()" autocomplete="tel" inputmode="tel">
+          </div>
         </div>
         <div class="row">
-          <div class="field"><label for="fl">Location</label><input id="fl" placeholder="Coimbatore, Tamil Nadu" oninput="debLive()"></div>
-          <div class="field"><label for="fli">LinkedIn / Portfolio</label><input id="fli" placeholder="linkedin.com/in/arjun" oninput="debLive()" inputmode="url"></div>
+          <div class="field">
+            <label for="fl">Location</label>
+            <input id="fl" placeholder="Coimbatore, Tamil Nadu" oninput="debLive()">
+          </div>
+          <div class="field">
+            <label for="fli">LinkedIn / Portfolio</label>
+            <input id="fli" placeholder="linkedin.com/in/arjun" oninput="debLive()" inputmode="url">
+          </div>
         </div>
         <div class="row full">
-          <div class="field"><label for="fab">Professional Summary</label><textarea id="fab" placeholder="Brief 2–3 line professional summary…" oninput="debLive()"></textarea></div>
+          <div class="field">
+            <label for="fab">Professional Summary</label>
+            <textarea id="fab" placeholder="Brief 2–3 line professional summary about yourself…" oninput="debLive()"></textarea>
+          </div>
         </div>
       </div>
 
+      <!-- WORK EXPERIENCE -->
       <div class="sec-header open" onclick="toggleSec(this)" role="button" aria-expanded="true" tabindex="0" onkeydown="if(event.key==='Enter')toggleSec(this)">
-        <div class="sec-label">Work Experience</div><div class="sec-toggle">+</div>
+        <div class="sec-label">Work Experience</div>
+        <div class="sec-toggle">+</div>
       </div>
-      <div class="sec-body open"><div id="expBox"></div><button class="add-btn" onclick="addExp()" type="button">+ Add Work Experience</button></div>
+      <div class="sec-body open" id="sec_exp">
+        <div id="expBox"></div>
+        <button class="add-btn" onclick="addExp()">+ Add Work Experience</button>
+      </div>
 
+      <!-- EDUCATION -->
       <div class="sec-header open" onclick="toggleSec(this)" role="button" aria-expanded="true" tabindex="0" onkeydown="if(event.key==='Enter')toggleSec(this)">
-        <div class="sec-label">Education</div><div class="sec-toggle">+</div>
+        <div class="sec-label">Education</div>
+        <div class="sec-toggle">+</div>
       </div>
-      <div class="sec-body open"><div id="eduBox"></div><button class="add-btn" onclick="addEdu()" type="button">+ Add Education</button></div>
-
-      <div class="sec-header" onclick="toggleSec(this)" role="button" aria-expanded="false" tabindex="0" onkeydown="if(event.key==='Enter')toggleSec(this)">
-        <div class="sec-label">Skills &amp; More</div><div class="sec-toggle">+</div>
-      </div>
-      <div class="sec-body">
-        <div class="row"><div class="field"><label for="fsk">Skills <span style="font-weight:400;color:var(--muted2);text-transform:none;letter-spacing:0;">(comma separated)</span></label><input id="fsk" placeholder="React, Node.js, Python" oninput="debLive()"></div><div class="field"><label for="fla">Languages</label><input id="fla" placeholder="English, Tamil, Hindi" oninput="debLive()"></div></div>
-        <div class="row full"><div class="field"><label for="faw">Achievements / Certifications</label><input id="faw" placeholder="AWS Certified, Employee of the Year 2023" oninput="debLive()"></div></div>
+      <div class="sec-body open" id="sec_edu">
+        <div id="eduBox"></div>
+        <button class="add-btn" onclick="addEdu()">+ Add Education</button>
       </div>
 
+      <!-- SKILLS -->
       <div class="sec-header" onclick="toggleSec(this)" role="button" aria-expanded="false" tabindex="0" onkeydown="if(event.key==='Enter')toggleSec(this)">
-        <div class="sec-label">References</div><div class="sec-toggle">+</div>
+        <div class="sec-label">Skills &amp; More</div>
+        <div class="sec-toggle">+</div>
       </div>
-      <div class="sec-body"><div id="refBox"></div><button class="add-btn" onclick="addRef()" type="button">+ Add Reference</button></div>
+      <div class="sec-body" id="sec_skills">
+        <div class="row">
+          <div class="field">
+            <label for="fsk">Skills <span style="font-weight:400;color:var(--muted2);text-transform:none;letter-spacing:0;">(comma separated)</span></label>
+            <input id="fsk" placeholder="React, Node.js, Python" oninput="debLive()">
+          </div>
+          <div class="field">
+            <label for="fla">Languages</label>
+            <input id="fla" placeholder="English, Tamil, Hindi" oninput="debLive()">
+          </div>
+        </div>
+        <div class="row full">
+          <div class="field">
+            <label for="faw">Achievements / Certifications</label>
+            <input id="faw" placeholder="AWS Certified, Employee of the Year 2023" oninput="debLive()">
+          </div>
+        </div>
+      </div>
 
+      <!-- REFERENCES -->
       <div class="sec-header" onclick="toggleSec(this)" role="button" aria-expanded="false" tabindex="0" onkeydown="if(event.key==='Enter')toggleSec(this)">
-        <div class="sec-label">Custom Sections <span style="font-weight:300;color:var(--muted2);font-size:11px;letter-spacing:0;text-transform:none;">Projects · Hobbies · Volunteer</span></div><div class="sec-toggle">+</div>
+        <div class="sec-label">References</div>
+        <div class="sec-toggle">+</div>
       </div>
-      <div class="sec-body"><div id="customBox"></div><button class="add-btn accent-btn" onclick="addCustom()" type="button">+ Add Custom Section</button></div>
+      <div class="sec-body" id="sec_refs">
+        <div id="refBox"></div>
+        <button class="add-btn" onclick="addRef()">+ Add Reference</button>
+      </div>
 
+      <!-- CUSTOM SECTIONS -->
       <div class="sec-header" onclick="toggleSec(this)" role="button" aria-expanded="false" tabindex="0" onkeydown="if(event.key==='Enter')toggleSec(this)">
-        <div class="sec-label">Declaration &amp; Signature</div><div class="sec-toggle">+</div>
+        <div class="sec-label">Custom Sections <span style="font-weight:300;color:var(--muted2);font-size:11px;letter-spacing:0;text-transform:none;">Projects · Hobbies · Volunteer</span></div>
+        <div class="sec-toggle">+</div>
       </div>
-      <div class="sec-body">
-        <div class="row full"><div class="field"><label for="fdecl">Statement</label><textarea id="fdecl" rows="3" placeholder="I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief." oninput="debSave()"></textarea></div></div>
-        <div class="row"><div class="field"><label for="fdpl">Place</label><input id="fdpl" placeholder="Coimbatore" oninput="debSave()"></div><div class="field"><label for="fddt">Date</label><input id="fddt" type="date" oninput="debSave()"></div></div>
+      <div class="sec-body" id="sec_custom">
+        <div id="customBox"></div>
+        <button class="add-btn" onclick="addCustom()" style="border-color:var(--accent);color:var(--accent);">+ Add Custom Section</button>
+      </div>
+
+      <!-- DECLARATION -->
+      <div class="sec-header" onclick="toggleSec(this)" role="button" aria-expanded="false" tabindex="0" onkeydown="if(event.key==='Enter')toggleSec(this)">
+        <div class="sec-label">Declaration &amp; Signature</div>
+        <div class="sec-toggle">+</div>
+      </div>
+      <div class="sec-body" id="sec_decl">
+        <div class="row full">
+          <div class="field">
+            <label for="fdecl">Statement</label>
+            <textarea id="fdecl" rows="3" placeholder="I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief." oninput="debSave()"></textarea>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="fdpl">Place</label>
+            <input id="fdpl" placeholder="Coimbatore" oninput="debSave()">
+          </div>
+          <div class="field">
+            <label for="fddt">Date</label>
+            <input id="fddt" type="date" oninput="debSave()">
+          </div>
+        </div>
         <div class="row full" style="margin-bottom:20px;">
           <div class="field">
-            <label>Signature <span style="font-weight:400;color:var(--muted2);text-transform:none;letter-spacing:0;">(optional · PNG transparent bg works best)</span></label>
-            <div class="upload-zone sig-zone" id="sigZone" onclick="document.getElementById('sigIn').click()" tabindex="0" role="button" aria-label="Upload signature" onkeydown="if(event.key==='Enter')this.click()">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            <label>Signature Image <span style="font-weight:400;color:var(--muted2);text-transform:none;letter-spacing:0;">(optional)</span></label>
+            <div class="photo-zone" id="sigZone" onclick="document.getElementById('sigIn').click()" style="height:68px;" tabindex="0" role="button" aria-label="Upload signature">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
               <span id="sigLbl">Upload signature image</span>
             </div>
             <input type="file" id="sigIn" accept="image/*" onchange="handleSig(this)">
@@ -347,19 +830,22 @@ input[type=file]{display:none;}
         </div>
       </div>
 
+      <!-- Desktop footer -->
       <div class="form-foot-desktop">
         <span style="font-size:11px;color:var(--muted)">✦ Auto-saved to browser</span>
-        <button class="btn btn-dark" onclick="validateAndNext()" type="button">Choose Template →</button>
+        <button class="btn btn-dark" onclick="validateAndNext()">Choose Template →</button>
       </div>
     </div>
 
+    <!-- LIVE PREVIEW (desktop) -->
     <aside class="preview-pane" aria-label="Live preview">
       <div class="preview-label">Live Preview</div>
       <div class="mini-card" aria-hidden="true">
         <div class="mp-name" id="lp_n">Your Name</div>
         <div class="mp-title" id="lp_t">Job Title</div>
         <div class="mp-hr"></div>
-        <div class="mp-lbl">About</div><div class="mp-txt" id="lp_a">Your summary will appear here…</div>
+        <div class="mp-lbl">About</div>
+        <div class="mp-txt" id="lp_a">Your summary will appear here…</div>
         <div class="mp-hr"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <div><div class="mp-lbl">Contact</div><div class="mp-txt" id="lp_c">Email · Phone</div></div>
@@ -369,64 +855,63 @@ input[type=file]{display:none;}
       <div class="preview-hint">Updates as you type ✦</div>
     </aside>
   </div>
+
+  <!-- Mobile sticky footer -->
   <div class="form-foot-sticky">
     <span class="foot-hint">✦ Auto-saved</span>
-    <button class="btn btn-dark" onclick="validateAndNext()" type="button">Choose Template →</button>
+    <button class="btn btn-dark" onclick="validateAndNext()">Choose Template →</button>
   </div>
 </div>
 
-<!-- PAGE 2 -->
+<!-- ============================================================
+     PAGE 2 — TEMPLATES
+============================================================ -->
 <div class="page" id="page2">
   <div class="p2-wrap">
-    <button class="back-btn" onclick="go(1)" type="button">← Back to Details</button>
+    <button class="back-btn" onclick="go(1)">← Back to Details</button>
     <h1 class="page-h">Choose Your Template</h1>
     <p class="page-sub">3 free templates · 7 premium from ₹29 · ATS-friendly PDF export</p>
-    <div class="tpl-grid" id="tplGrid" role="radiogroup" aria-label="Resume templates"></div>
+    <div class="tpl-grid" id="tplGrid"></div>
     <div class="p2-foot">
       <div class="sel-info">Selected: <b id="selName">Modern Estelle</b> &nbsp;·&nbsp; <b id="selPrice">Free</b></div>
-      <button class="btn btn-dark" onclick="goToPreview()" type="button">Preview My Resume →</button>
+      <button class="btn btn-dark" onclick="goToPreview()">Preview My Resume →</button>
     </div>
   </div>
 </div>
 
-<!-- PAGE 3 -->
+<!-- ============================================================
+     PAGE 3 — PREVIEW & DOWNLOAD
+============================================================ -->
 <div class="page" id="page3">
   <div class="p3-wrap">
-    <button class="back-btn" onclick="go(2)" type="button">← Change Template</button>
-    <div class="overflow-warn" id="overflowWarn" role="alert">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Your content may be cut off — consider shortening descriptions or removing some sections.
-    </div>
+    <button class="back-btn" onclick="go(2)">← Change Template</button>
     <div class="p3-grid">
-      <div class="resume-shell" id="resumeShell">
-        <div class="mobile-preview-msg" id="mobilePreviewMsg">
+      <div class="resume-shell">
+        <!-- Mobile: show message instead of tiny preview -->
+        <div class="mobile-preview-msg">
           <p>Resume preview is best on desktop.<br>Your resume is ready — download the PDF below!</p>
-          <button class="dl-btn" onclick="downloadPDF()" style="max-width:280px;margin:0 auto;">
-            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 15V3m0 12l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Download PDF
+          <button class="dl-btn" id="dlBtnMobile" onclick="downloadPDF()" style="max-width:280px;margin:0 auto;">
+            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 12l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+            Download PDF
           </button>
         </div>
-        <div class="mobile-preview-msg" id="mobileLockedMsg" style="display:none;">
-          <div style="font-size:40px;margin-bottom:8px;">🔒</div>
-          <p style="font-weight:600;color:var(--ink);font-size:16px;margin-bottom:6px;">Premium Template</p>
-          <p>Unlock to download your PDF</p>
-          <button class="pay-btn" onclick="initRazorpay()" style="max-width:280px;margin:16px auto 0;font-size:14px;">
-            🔒 Unlock for ₹<span class="mobile-pay-amt">29</span>
-          </button>
+        <div id="resumeScaler">
+          <div id="resumeOut"></div>
         </div>
-        <div id="resumeScaler"><div id="resumeOut"></div></div>
       </div>
       <aside>
         <div class="sidebar-card">
           <div class="tpl-name-big" id="p3name">Modern Estelle</div>
           <div class="price-chip chip-free" id="p3price">FREE</div>
           <div id="dlSection">
-            <button class="dl-btn" id="dlBtn" onclick="downloadPDF()" type="button">
-              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 15V3m0 12l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Download PDF
+            <button class="dl-btn" id="dlBtn" onclick="downloadPDF()">
+              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 12l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+              Download PDF
             </button>
             <p class="tip">A4 · ATS-ready text · Under 3MB</p>
           </div>
           <div id="paySection" style="display:none;">
-            <button class="pay-btn" id="payBtn" onclick="initRazorpay()" type="button">
+            <button class="pay-btn" id="payBtn" onclick="initRazorpay()">
               🔒 Unlock for ₹<span id="payAmt">29</span>
             </button>
             <p class="tip">One-time · Secure Razorpay checkout</p>
@@ -439,586 +924,1127 @@ input[type=file]{display:none;}
           <div class="detail-row">📧 <span id="p3_e">—</span></div>
           <div class="detail-row">📍 <span id="p3_l">—</span></div>
         </div>
-        <div class="sidebar-card"><h3>Skills</h3><div id="p3_sk" style="margin-top:4px;"></div></div>
+        <div class="sidebar-card">
+          <h3>Skills</h3>
+          <div id="p3_sk" style="margin-top:4px;"></div>
+        </div>
       </aside>
     </div>
   </div>
 </div>
+
 </main>
 
-<!-- SUCCESS MODAL -->
+<!-- ============================================================
+     SUCCESS MODAL (after payment)
+============================================================ -->
 <div class="overlay" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successTitle">
   <div class="modal">
     <button class="modal-x" onclick="closeModal()" aria-label="Close">×</button>
     <div class="modal-icon">🎉</div>
     <h2 id="successTitle">Template Unlocked!</h2>
     <p class="modal-sub" style="margin-bottom:20px;">Payment confirmed. You can now download your ATS-ready PDF resume.</p>
-    <button class="dl-btn" onclick="closeModal();downloadPDF()" type="button">
-      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 15V3m0 12l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Download PDF Now
+    <button class="dl-btn" onclick="closeModal();downloadPDF()">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 12l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+      Download PDF Now
     </button>
   </div>
 </div>
 
+<!-- Razorpay SDK (loaded dynamically only when needed) -->
 <script>
-'use strict';
 /* ================================================================
-   CVCraft — Publishable v4.0
-   ✅ REAL Razorpay payment (no demo bypass)
-   ✅ No backend needed — Razorpay client-only checkout
-   ✅ Payment IDs stored in localStorage (prevents re-use)
-   ✅ All previous fixes maintained
+   CVCraft — Production Build v2.0
+   ✓ Mobile-first responsive
+   ✓ Razorpay payment integration
+   ✓ Collapsible form sections
+   ✓ Sticky mobile footer
+   ✓ ATS-friendly jsPDF text output
+   ✓ Secure: no client-side payment bypass
 ================================================================ */
 
-/* ================================================================
-   ⚙️  CONFIG — CHANGE THESE TWO VALUES BEFORE GOING LIVE
-   ================================================================
-   1. Go to https://dashboard.razorpay.com → Settings → API Keys
-   2. Generate a key pair
-   3. Paste your KEY ID (starts with rzp_live_ or rzp_test_) below
-   4. Your KEY SECRET stays on your server / never goes in this file
+/* ----------------------------------------------------------------
+   CONFIG
+   ─────────────────────────────────────────────────────────────────
+   RAZORPAY_KEY  → Your PUBLIC key_id from Razorpay dashboard.
+                   Starts with rzp_live_ (prod) or rzp_test_ (test).
+                   This is SAFE to put here — it's only the public key.
 
-   NOTE: The public KEY ID is safe to put in frontend code.
-         Razorpay confirms payment on their servers using it.
-         Nobody can fake a successful payment using just the KEY ID.
-================================================================ */
+   ORDER_ENDPOINT / VERIFY_ENDPOINT → Your backend server URL.
+                   See server.js (included in this package).
+                   Example: https://cvcraft-server.railway.app/api/create-order
+
+   DEMO_MODE     → true  = simulate payment (no real money, for testing)
+                   false = real Razorpay checkout (money moves)
+   ─────────────────────────────────────────────────────────────────
+---------------------------------------------------------------- */
 const CFG = {
-  // ✅ PASTE YOUR RAZORPAY KEY ID HERE
-  // Get it from: https://dashboard.razorpay.com → Settings → API Keys
-  RAZORPAY_KEY: 'rzp_live_SWGibaY0OxTRDW',
-
-  // Your business name shown in Razorpay checkout popup
-  BUSINESS_NAME: 'CVCraft',
-
-  // Support contact shown on payment failure
-  SUPPORT_EMAIL: 'support@cvcraft.in',
+  RAZORPAY_KEY:    'YOUR_RAZORPAY_PUBLIC_KEY_ID',  // rzp_live_... or rzp_test_...
+  ORDER_ENDPOINT:  'https://YOUR-SERVER-URL/api/create-order',
+  VERIFY_ENDPOINT: 'https://YOUR-SERVER-URL/api/verify-payment',
+  DEMO_MODE:       false,  // Set true to test UI without real payment
 };
-/* ================================================================ */
 
+/* ----------------------------------------------------------------
+   STATE
+---------------------------------------------------------------- */
 const S = {
-  page:1, maxPage:1, tplId:1,
-  unlocked: new Set([1,2,3]),
-  photo:'', sig:'', ec:0,
+  page: 1,
+  maxPage: 1,
+  tplId: 1,
+  unlocked: new Set([1, 2, 3]),
+  photo: '',
+  sig: '',
+  ec: 0,
 };
 
-let _undo=null, _undoT=null;
-
+/* ----------------------------------------------------------------
+   TEMPLATES
+---------------------------------------------------------------- */
 const TPLS = [
-  {id:1,  name:'Modern Estelle', price:'Free', amt:0,  c:'#2563eb', a:'#2563eb', s:'minimal'},
-  {id:2,  name:'Teal Sidebar',   price:'Free', amt:0,  c:'#0d9488', a:'#0d9488', s:'sidebar'},
-  {id:3,  name:'Hamilton Wavy',  price:'Free', amt:0,  c:'#7c3aed', a:'#7c3aed', s:'wavy'},
-  {id:4,  name:'Maroon Pro',     price:'₹29',  amt:29, c:'#9f1239', a:'#e11d48', s:'pro'},
-  {id:5,  name:'Black & Gold',   price:'₹29',  amt:29, c:'#111',    a:'#d97706', s:'dark'},
-  {id:6,  name:'Corporate Blue', price:'₹35',  amt:35, c:'#1e3a8a', a:'#3b82f6', s:'corp'},
-  {id:7,  name:'Sage Minimal',   price:'₹29',  amt:29, c:'#365314', a:'#65a30d', s:'sage'},
-  {id:8,  name:'Charcoal Clean', price:'₹35',  amt:35, c:'#1f2937', a:'#6b7280', s:'clean'},
-  {id:9,  name:'Peach Warm',     price:'₹35',  amt:35, c:'#9a3412', a:'#f97316', s:'peach'},
-  {id:10, name:'Sales Curve',    price:'₹29',  amt:29, c:'#1e1b4b', a:'#6366f1', s:'curve'},
+  {id:1,  name:'Modern Estelle',  price:'Free', amt:0,  c:'#2563eb', a:'#2563eb', s:'minimal'},
+  {id:2,  name:'Teal Sidebar',    price:'Free', amt:0,  c:'#0d9488', a:'#0d9488', s:'sidebar'},
+  {id:3,  name:'Hamilton Wavy',   price:'Free', amt:0,  c:'#7c3aed', a:'#7c3aed', s:'wavy'},
+  {id:4,  name:'Maroon Pro',      price:'₹29',  amt:29, c:'#9f1239', a:'#e11d48', s:'pro'},
+  {id:5,  name:'Black & Gold',    price:'₹29',  amt:29, c:'#111',    a:'#d97706', s:'dark'},
+  {id:6,  name:'Corporate Blue',  price:'₹35',  amt:35, c:'#1e3a8a', a:'#3b82f6', s:'corp'},
+  {id:7,  name:'Sage Minimal',    price:'₹29',  amt:29, c:'#365314', a:'#65a30d', s:'sage'},
+  {id:8,  name:'Charcoal Clean',  price:'₹35',  amt:35, c:'#1f2937', a:'#6b7280', s:'clean'},
+  {id:9,  name:'Peach Warm',      price:'₹35',  amt:35, c:'#9a3412', a:'#f97316', s:'peach'},
+  {id:10, name:'Sales Curve',     price:'₹29',  amt:29, c:'#1e1b4b', a:'#6366f1', s:'curve'},
 ];
 
-/* ---- Utils ---- */
-function deb(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
-const debLive=deb(liveUpdate,120), debSave=deb(saveData,700);
-function $id(id){return document.getElementById(id);}
-function val(id){const e=$id(id);return e?e.value:'';}
-function setTxt(id,v){const e=$id(id);if(e)e.textContent=v;}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function fmtDate(iso){if(!iso)return '';try{return new Date(iso+'T12:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});}catch{return iso;}}
-function compressImage(dataUrl,maxPx,quality){return new Promise(resolve=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxPx/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality));};img.onerror=()=>resolve(dataUrl);img.src=dataUrl;});}
+/* ----------------------------------------------------------------
+   UTILS
+---------------------------------------------------------------- */
+function deb(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+const debLive = deb(liveUpdate, 120);
+const debSave = deb(saveData, 700);
+function $id(id) { return document.getElementById(id); }
+function val(id) { return ($id(id) || {}).value || ''; }
+function setText(id, v) { const e = $id(id); if (e) e.textContent = v; }
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 let toastT;
-function toast(msg,showUndo=false){$id('toast-msg').textContent=msg;$id('toast-undo').classList.toggle('show',showUndo);$id('toast').classList.add('show');clearTimeout(toastT);toastT=setTimeout(hideToast,showUndo?4000:3000);}
-function hideToast(){$id('toast').classList.remove('show');}
+function toast(msg) {
+  const el = $id('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
 let asT;
-function showSaved(){const el=$id('autosave');el.classList.add('show');clearTimeout(asT);asT=setTimeout(()=>el.classList.remove('show'),2200);}
+function showSaved() {
+  const el = $id('autosave');
+  el.classList.add('show');
+  clearTimeout(asT);
+  asT = setTimeout(() => el.classList.remove('show'), 2200);
+}
 
-/* ---- Section toggle ---- */
-function toggleSec(hdr){const open=hdr.classList.contains('open');hdr.classList.toggle('open',!open);hdr.setAttribute('aria-expanded',String(!open));const body=hdr.nextElementSibling;if(body&&body.classList.contains('sec-body'))body.classList.toggle('open',!open);}
+/* ----------------------------------------------------------------
+   COLLAPSIBLE SECTIONS
+---------------------------------------------------------------- */
+function toggleSec(header) {
+  const isOpen = header.classList.contains('open');
+  header.classList.toggle('open', !isOpen);
+  header.setAttribute('aria-expanded', String(!isOpen));
+  const body = header.nextElementSibling;
+  if (body && body.classList.contains('sec-body')) {
+    body.classList.toggle('open', !isOpen);
+  }
+}
 
-/* ---- Validation ---- */
-function validatePage1(){
-  let ok=true;
-  [{id:'fn',eid:'e_fn',fn:v=>v.trim().length>0},{id:'ft',eid:'e_ft',fn:v=>v.trim().length>0},{id:'fe',eid:'e_fe',fn:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())}]
-  .forEach(c=>{const el=$id(c.id),er=$id(c.eid),pass=c.fn(el.value);el.classList.toggle('err',!pass);er.classList.toggle('show',!pass);if(!pass)ok=false;});
-  if(!ok){const sb=$id('e_fn').closest('.sec-body');if(sb&&!sb.classList.contains('open'))toggleSec(sb.previousElementSibling);const f=document.querySelector('input.err');if(f)f.scrollIntoView({behavior:'smooth',block:'center'});}
+/* Auto-open first 3 sections on mobile to not overwhelm */
+function initSections() {
+  const isMobile = window.innerWidth <= 900;
+  if (isMobile) {
+    // Keep Personal, Exp, Edu open; close the rest (they start closed by default in HTML)
+  }
+}
+
+/* ----------------------------------------------------------------
+   VALIDATION
+---------------------------------------------------------------- */
+function validatePage1() {
+  let ok = true;
+  const checks = [
+    {id:'fn', eid:'e_fn', fn:v => v.trim().length > 0},
+    {id:'ft', eid:'e_ft', fn:v => v.trim().length > 0},
+    {id:'fe', eid:'e_fe', fn:v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())},
+  ];
+  checks.forEach(c => {
+    const el = $id(c.id), er = $id(c.eid);
+    const pass = c.fn(el.value);
+    el.classList.toggle('err', !pass);
+    er.classList.toggle('show', !pass);
+    if (!pass) ok = false;
+  });
+  if (!ok) {
+    // Open Personal Info section if it's closed
+    const personalHeader = document.querySelector('#sec_personal').previousElementSibling;
+    if (personalHeader && !personalHeader.classList.contains('open')) {
+      toggleSec(personalHeader);
+    }
+    const first = document.querySelector('input.err');
+    if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
+  }
   return ok;
 }
-function validateAndNext(){if(validatePage1())go(2);}
+function validateAndNext() { if (validatePage1()) go(2); }
 
-/* ---- Storage ---- */
-const KEY='cvcraft_v5';
-function saveData(){
-  try{
-    localStorage.setItem(KEY,JSON.stringify({
-      fields:collectFields(),tplId:S.tplId,
-      unlocked:[...S.unlocked],
-      paidIds:getPaidIds(),   // persist paid template IDs
-      exp:collectEntries('exp'),edu:collectEntries('edu'),
-      refs:collectRefs(),custom:collectCustom(),
+/* ----------------------------------------------------------------
+   STORAGE
+---------------------------------------------------------------- */
+const KEY = 'cvcraft_v5';
+function saveData() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify({
+      fields: collectFields(),
+      photo: S.photo, sig: S.sig,
+      tplId: S.tplId,
+      unlocked: [...S.unlocked],
+      exp: collectEntries('exp'),
+      edu: collectEntries('edu'),
+      refs: collectRefs(),
+      custom: collectCustom(),
     }));
     showSaved();
-  }catch(e){if(e&&e.name==='QuotaExceededError')toast('⚠️ Storage full — clear browser data');}
+  } catch(e) {}
 }
-function loadData(){
-  try{
-    const raw=localStorage.getItem(KEY);if(!raw)return;
-    const d=JSON.parse(raw);
-    ['fn','ft','fe','fp','fl','fli','fab','fsk','fla','faw','fdecl','fdpl','fddt'].forEach(k=>{const el=$id(k);if(el&&d.fields&&d.fields[k]!=null)el.value=d.fields[k];});
-    if(d.exp&&d.exp.length)d.exp.forEach(e=>addExp(e));
-    if(d.edu&&d.edu.length)d.edu.forEach(e=>addEdu(e));
-    if(d.refs&&d.refs.length)d.refs.forEach(r=>addRef(r));
-    if(d.custom&&d.custom.length)d.custom.forEach(c=>addCustom(c));
-    if(d.tplId)S.tplId=d.tplId;
-    if(d.unlocked)d.unlocked.forEach(id=>S.unlocked.add(id));
-    if(d.paidIds)d.paidIds.forEach(id=>addPaidId(id));   // restore paid IDs
+function loadData() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    const ids = ['fn','ft','fe','fp','fl','fli','fab','fsk','fla','faw','fdecl','fdpl','fddt'];
+    ids.forEach(k => { const el = $id(k); if (el && d.fields && d.fields[k] !== undefined) el.value = d.fields[k]; });
+    if (d.photo) { S.photo = d.photo; setPhotoPreview(d.photo); }
+    if (d.sig) { S.sig = d.sig; setSigPreview(d.sig); }
+    if (d.exp && d.exp.length) d.exp.forEach(e => addExp(e));
+    if (d.edu && d.edu.length) d.edu.forEach(e => addEdu(e));
+    if (d.refs && d.refs.length) d.refs.forEach(r => addRef(r));
+    if (d.custom && d.custom.length) d.custom.forEach(c => addCustom(c));
+    if (d.tplId) S.tplId = d.tplId;
+    if (d.unlocked) d.unlocked.forEach(id => S.unlocked.add(id));
     liveUpdate();
-  }catch(e){}
+  } catch(e) {}
 }
-function collectFields(){const ids=['fn','ft','fe','fp','fl','fli','fab','fsk','fla','faw','fdecl','fdpl','fddt'];const o={};ids.forEach(k=>o[k]=val(k));return o;}
+function collectFields() {
+  const ids = ['fn','ft','fe','fp','fl','fli','fab','fsk','fla','faw','fdecl','fdpl','fddt'];
+  const o = {}; ids.forEach(k => o[k] = val(k)); return o;
+}
 
-/* ---- Paid payment ID store (prevents replay attacks) ---- */
-const _paidIds = new Set();
-function addPaidId(id){_paidIds.add(id);}
-function hasPaidId(id){return _paidIds.has(id);}
-function getPaidIds(){return [..._paidIds];}
-
-/* ---- Live preview ---- */
-function liveUpdate(){
-  setTxt('lp_n',val('fn')||'Your Name');setTxt('lp_t',val('ft')||'Job Title');
-  const ab=val('fab')||'Your summary will appear here…';setTxt('lp_a',ab.slice(0,80)+(ab.length>80?'…':''));
-  setTxt('lp_c',(val('fe')||'Email')+(val('fp')?' · '+val('fp'):''));
-  setTxt('lp_s',val('fsk').split(',').map(s=>s.trim()).filter(Boolean).slice(0,4).join(', ')||'Your skills');
+/* ----------------------------------------------------------------
+   LIVE PREVIEW
+---------------------------------------------------------------- */
+function liveUpdate() {
+  setText('lp_n', val('fn') || 'Your Name');
+  setText('lp_t', val('ft') || 'Job Title');
+  const ab = val('fab') || 'Your summary will appear here…';
+  setText('lp_a', ab.slice(0, 80) + (ab.length > 80 ? '…' : ''));
+  const em = val('fe') || 'Email'; const ph = val('fp');
+  setText('lp_c', em + (ph ? ' · ' + ph : ''));
+  const sk = val('fsk') || 'Your skills';
+  setText('lp_s', sk.split(',').slice(0, 4).map(s => s.trim()).filter(Boolean).join(', ') || 'Your skills');
   debSave();
 }
 
-/* ---- Photo / Sig ---- */
-async function handlePhoto(inp){
-  const f=inp.files[0];if(!f)return;
-  if(f.size>10*1024*1024){toast('⚠️ Photo must be under 10MB');return;}
-  const r=new FileReader();r.onload=async e=>{S.photo=await compressImage(e.target.result,400,.65);const z=$id('photoZone');const old=z.querySelector('img');if(old)old.remove();const img=document.createElement('img');img.src=S.photo;img.alt='Profile photo';img.className='photo-thumb';z.insertBefore(img,z.firstChild);$id('photoLbl').textContent='Tap to change';toast('✅ Photo added');};r.readAsDataURL(f);
+/* ----------------------------------------------------------------
+   PHOTO / SIGNATURE
+---------------------------------------------------------------- */
+function handlePhoto(inp) {
+  const f = inp.files[0]; if (!f) return;
+  if (f.size > 5 * 1024 * 1024) { toast('⚠️ Photo must be under 5MB'); return; }
+  const r = new FileReader();
+  r.onload = e => { S.photo = e.target.result; setPhotoPreview(e.target.result); debSave(); };
+  r.readAsDataURL(f);
 }
-async function handleSig(inp){
-  const f=inp.files[0];if(!f)return;
-  if(f.size>5*1024*1024){toast('⚠️ Signature must be under 5MB');return;}
-  const r=new FileReader();r.onload=async e=>{S.sig=await compressImage(e.target.result,600,.8);const z=$id('sigZone');const old=z.querySelector('img');if(old)old.remove();const img=document.createElement('img');img.src=S.sig;img.alt='Signature';img.className='sig-thumb';z.insertBefore(img,z.firstChild);$id('sigLbl').textContent='Tap to change';toast('✅ Signature added');};r.readAsDataURL(f);
+function setPhotoPreview(src) {
+  const z = $id('photoZone'), l = $id('photoLbl');
+  const old = z.querySelector('img'); if (old) old.remove();
+  const img = document.createElement('img');
+  img.src = src; img.alt = 'Profile photo preview';
+  img.style.cssText = 'width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--border);';
+  z.insertBefore(img, z.firstChild);
+  if (l) l.textContent = 'Tap to change';
+}
+function handleSig(inp) {
+  const f = inp.files[0]; if (!f) return;
+  if (f.size > 3 * 1024 * 1024) { toast('⚠️ Signature must be under 3MB'); return; }
+  const r = new FileReader();
+  r.onload = e => { S.sig = e.target.result; setSigPreview(e.target.result); debSave(); };
+  r.readAsDataURL(f);
+}
+function setSigPreview(src) {
+  const z = $id('sigZone'), l = $id('sigLbl');
+  const old = z.querySelector('img'); if (old) old.remove();
+  const img = document.createElement('img');
+  img.src = src; img.alt = 'Signature preview';
+  img.style.cssText = 'max-height:46px;max-width:150px;object-fit:contain;';
+  z.insertBefore(img, z.firstChild);
+  if (l) l.textContent = 'Tap to change';
 }
 
-/* ---- Entry builders ---- */
-function addExp(d={}){
-  const id='exp_'+(++S.ec);const el=document.createElement('div');el.className='entry';el.id=id;
-  el.innerHTML=`<button class="entry-del" onclick="removeEntry('${id}','expBox')" type="button">×</button>
-    <div class="row"><div class="field"><label>Job Title</label><input class="e-role" placeholder="Senior Developer" value="${esc(d.role||'')}" oninput="debSave()"></div><div class="field"><label>Company</label><input class="e-company" placeholder="TechCorp Pvt Ltd" value="${esc(d.company||'')}" oninput="debSave()"></div></div>
-    <div class="row"><div class="field"><label>Duration</label><input class="e-dur" placeholder="2021 – Present" value="${esc(d.dur||'')}" oninput="debSave()"></div><div class="field"><label>City</label><input class="e-loc" placeholder="Coimbatore" value="${esc(d.loc||'')}" oninput="debSave()"></div></div>
-    <div class="field"><label>Description</label><textarea class="e-desc" rows="2" oninput="debSave()">${esc(d.desc||'')}</textarea></div>`;
+/* ----------------------------------------------------------------
+   DYNAMIC ENTRIES
+---------------------------------------------------------------- */
+function addExp(d = {}) {
+  const id = 'exp_' + (++S.ec);
+  const el = document.createElement('div');
+  el.className = 'entry'; el.id = id;
+  el.innerHTML = `
+    <button class="entry-del" onclick="removeEntry('${id}')" aria-label="Remove experience">×</button>
+    <div class="row">
+      <div class="field"><label>Job Title</label><input class="er" placeholder="Senior Developer" value="${esc(d.role||'')}" oninput="debSave()"></div>
+      <div class="field"><label>Company</label><input class="ec" placeholder="TechCorp Pvt Ltd" value="${esc(d.company||'')}" oninput="debSave()"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Duration</label><input class="edu" placeholder="2021 – Present" value="${esc(d.dur||'')}" oninput="debSave()"></div>
+      <div class="field"><label>City</label><input class="eloc" placeholder="Coimbatore" value="${esc(d.loc||'')}" oninput="debSave()"></div>
+    </div>
+    <div class="field"><label>Description</label><textarea class="edes" placeholder="Key responsibilities and achievements…" rows="2" oninput="debSave()">${esc(d.desc||'')}</textarea></div>`;
   $id('expBox').appendChild(el);
 }
-function addEdu(d={}){
-  const id='edu_'+(++S.ec);const el=document.createElement('div');el.className='entry';el.id=id;
-  el.innerHTML=`<button class="entry-del" onclick="removeEntry('${id}','eduBox')" type="button">×</button>
-    <div class="row"><div class="field"><label>Degree</label><input class="e-deg" placeholder="B.Tech Computer Science" value="${esc(d.deg||'')}" oninput="debSave()"></div><div class="field"><label>University</label><input class="e-school" placeholder="Anna University" value="${esc(d.school||'')}" oninput="debSave()"></div></div>
-    <div class="row"><div class="field"><label>Year</label><input class="e-year" placeholder="2019 – 2023" value="${esc(d.year||'')}" oninput="debSave()"></div><div class="field"><label>Grade / CGPA</label><input class="e-grade" placeholder="8.5 CGPA" value="${esc(d.grade||'')}" oninput="debSave()"></div></div>`;
+function addEdu(d = {}) {
+  const id = 'edu_' + (++S.ec);
+  const el = document.createElement('div');
+  el.className = 'entry'; el.id = id;
+  el.innerHTML = `
+    <button class="entry-del" onclick="removeEntry('${id}')" aria-label="Remove education">×</button>
+    <div class="row">
+      <div class="field"><label>Degree</label><input class="edeg" placeholder="B.Tech Computer Science" value="${esc(d.deg||'')}" oninput="debSave()"></div>
+      <div class="field"><label>University</label><input class="eschool" placeholder="Anna University" value="${esc(d.school||'')}" oninput="debSave()"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Year</label><input class="eyear" placeholder="2019 – 2023" value="${esc(d.year||'')}" oninput="debSave()"></div>
+      <div class="field"><label>Grade / CGPA</label><input class="egrade" placeholder="8.5 CGPA" value="${esc(d.grade||'')}" oninput="debSave()"></div>
+    </div>`;
   $id('eduBox').appendChild(el);
 }
-function addRef(d={}){
-  const id='ref_'+(++S.ec);const el=document.createElement('div');el.className='entry';el.id=id;
-  el.innerHTML=`<button class="entry-del" onclick="removeEntry('${id}','refBox')" type="button">×</button>
-    <div class="row"><div class="field"><label>Name</label><input class="r-name" placeholder="Dr. Priya Ramesh" value="${esc(d.name||'')}" oninput="debSave()"></div><div class="field"><label>Role</label><input class="r-role" placeholder="Head of Engineering" value="${esc(d.role||'')}" oninput="debSave()"></div></div>
-    <div class="row"><div class="field"><label>Organization</label><input class="r-org" placeholder="TechCorp Pvt Ltd" value="${esc(d.org||'')}" oninput="debSave()"></div><div class="field"><label>Email / Phone</label><input class="r-contact" placeholder="priya@techcorp.com" value="${esc(d.contact||'')}" oninput="debSave()"></div></div>`;
+function addRef(d = {}) {
+  const id = 'ref_' + (++S.ec);
+  const el = document.createElement('div');
+  el.className = 'entry'; el.id = id;
+  el.innerHTML = `
+    <button class="entry-del" onclick="removeEntry('${id}')" aria-label="Remove reference">×</button>
+    <div class="row">
+      <div class="field"><label>Name</label><input class="rname" placeholder="Dr. Priya Ramesh" value="${esc(d.name||'')}" oninput="debSave()"></div>
+      <div class="field"><label>Role</label><input class="rrole" placeholder="Head of Engineering" value="${esc(d.role||'')}" oninput="debSave()"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Organization</label><input class="rorg" placeholder="TechCorp Pvt Ltd" value="${esc(d.org||'')}" oninput="debSave()"></div>
+      <div class="field"><label>Email / Phone</label><input class="rcontact" placeholder="priya@techcorp.com" value="${esc(d.contact||'')}" oninput="debSave()"></div>
+    </div>`;
   $id('refBox').appendChild(el);
 }
-function addCustom(d={}){
-  const id='cst_'+(++S.ec);const el=document.createElement('div');el.className='entry custom-entry';el.id=id;
-  el.innerHTML=`<button class="entry-del" onclick="removeEntry('${id}','customBox')" type="button">×</button>
-    <div class="field" style="margin-bottom:10px;"><label>Section Title</label><input class="c-title" placeholder="Projects / Hobbies / Volunteer Work" value="${esc(d.title||'')}" oninput="debSave()" style="font-weight:600;"></div>
-    <div class="field"><label>Content <span style="font-weight:400;text-transform:none;letter-spacing:0;">(each new line = bullet)</span></label><textarea class="c-body" placeholder="Line 1&#10;Line 2" rows="3" oninput="debSave()">${esc(d.body||'')}</textarea></div>`;
+function addCustom(d = {}) {
+  const id = 'cst_' + (++S.ec);
+  const el = document.createElement('div');
+  el.className = 'entry'; el.id = id;
+  el.style.borderLeft = '3px solid var(--accent)';
+  el.innerHTML = `
+    <button class="entry-del" onclick="removeEntry('${id}')" aria-label="Remove section">×</button>
+    <div class="field" style="margin-bottom:10px;">
+      <label>Section Title</label>
+      <input class="ctitle" placeholder="Projects / Hobbies / Volunteer Work" value="${esc(d.title||'')}" oninput="debSave()" style="font-weight:600;">
+    </div>
+    <div class="field">
+      <label>Content <span style="font-weight:400;text-transform:none;letter-spacing:0;">(each line = bullet)</span></label>
+      <textarea class="cbody" placeholder="Line 1&#10;Line 2" rows="3" oninput="debSave()">${esc(d.body||'')}</textarea>
+    </div>`;
   $id('customBox').appendChild(el);
 }
-function removeEntry(id,boxId){
-  const el=$id(id);if(!el)return;
-  _undo={box:$id(boxId),html:el.outerHTML,nextSib:el.nextSibling};
-  clearTimeout(_undoT);_undoT=setTimeout(()=>{_undo=null;},4500);
-  el.classList.add('removing');
-  setTimeout(()=>{if($id(id))el.remove();debSave();},220);
-  toast('Entry removed',true);
-}
-function undoRemove(){
-  if(!_undo)return;
-  const{box,html,nextSib}=_undo;
-  const tmp=document.createElement('div');tmp.innerHTML=html;
-  box.insertBefore(tmp.firstChild,nextSib||null);
-  _undo=null;clearTimeout(_undoT);hideToast();debSave();
+function removeEntry(id) {
+  const el = $id(id); if (!el) return;
+  el.style.transition = 'opacity 0.2s,transform 0.2s';
+  el.style.opacity = '0'; el.style.transform = 'translateY(-6px)';
+  setTimeout(() => { el.remove(); debSave(); }, 200);
 }
 
-/* ---- Collect ---- */
-function collectEntries(type){
-  const box=$id(type+'Box');if(!box)return[];
-  return Array.from(box.querySelectorAll('.entry')).map(c=>{
-    const g=cls=>(c.querySelector('.'+cls)||{}).value||'';
-    return type==='exp'?{role:g('e-role'),company:g('e-company'),dur:g('e-dur'),loc:g('e-loc'),desc:g('e-desc')}:{deg:g('e-deg'),school:g('e-school'),year:g('e-year'),grade:g('e-grade')};
+/* ----------------------------------------------------------------
+   COLLECT DATA
+---------------------------------------------------------------- */
+function collectEntries(type) {
+  const box = $id(type + 'Box'); if (!box) return [];
+  return Array.from(box.querySelectorAll('.entry')).map(c => {
+    const g = cls => (c.querySelector('.' + cls) || {}).value || '';
+    return type === 'exp'
+      ? {role:g('er'), company:g('ec'), dur:g('edu'), loc:g('eloc'), desc:g('edes')}
+      : {deg:g('edeg'), school:g('eschool'), year:g('eyear'), grade:g('egrade')};
   });
 }
-function collectRefs(){const box=$id('refBox');if(!box)return[];return Array.from(box.querySelectorAll('.entry')).map(c=>{const g=cls=>(c.querySelector('.'+cls)||{}).value||'';return{name:g('r-name'),role:g('r-role'),org:g('r-org'),contact:g('r-contact')};});}
-function collectCustom(){const box=$id('customBox');if(!box)return[];return Array.from(box.querySelectorAll('.entry')).map(c=>{const g=cls=>(c.querySelector('.'+cls)||{}).value||'';return{title:g('c-title'),body:g('c-body')};});}
-function getData(){return{name:val('fn')||'Your Name',title:val('ft')||'Job Title',email:val('fe')||'',phone:val('fp')||'',loc:val('fl')||'',link:val('fli')||'',about:val('fab')||'',skills:val('fsk').split(',').map(s=>s.trim()).filter(Boolean),langs:val('fla')||'',awards:val('faw')||'',decl:val('fdecl')||'',dpl:val('fdpl')||'',ddt:val('fddt')||'',exp:collectEntries('exp'),edu:collectEntries('edu'),refs:collectRefs(),custom:collectCustom(),photo:S.photo,sig:S.sig};}
-
-/* ---- Navigation ---- */
-function go(n){
-  S.page=n;S.maxPage=Math.max(S.maxPage,n);
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  $id('page'+n).classList.add('active');
-  for(let i=1;i<=3;i++){const b=$id('sp'+i);b.classList.remove('active','done');b.removeAttribute('disabled');b.removeAttribute('aria-current');if(i===n){b.classList.add('active');b.setAttribute('aria-current','step');}else if(i<n)b.classList.add('done');else if(i>S.maxPage)b.setAttribute('disabled','');}
-  $id('progressLine').style.width=((n/3)*100)+'%';
-  window.scrollTo({top:0,behavior:'smooth'});
+function collectRefs() {
+  const box = $id('refBox'); if (!box) return [];
+  return Array.from(box.querySelectorAll('.entry')).map(c => {
+    const g = cls => (c.querySelector('.' + cls) || {}).value || '';
+    return {name:g('rname'), role:g('rrole'), org:g('rorg'), contact:g('rcontact')};
+  });
 }
-function tryGo(n){if(n<=S.maxPage)go(n);}
+function collectCustom() {
+  const box = $id('customBox'); if (!box) return [];
+  return Array.from(box.querySelectorAll('.entry')).map(c => {
+    const g = cls => (c.querySelector('.' + cls) || {}).value || '';
+    return {title:g('ctitle'), body:g('cbody')};
+  });
+}
+function getData() {
+  return {
+    name:  val('fn') || 'Your Name',
+    title: val('ft') || 'Job Title',
+    email: val('fe') || '',
+    phone: val('fp') || '',
+    loc:   val('fl') || '',
+    link:  val('fli') || '',
+    about: val('fab') || '',
+    skills: val('fsk').split(',').map(s => s.trim()).filter(Boolean),
+    langs: val('fla') || '',
+    awards: val('faw') || '',
+    decl:  val('fdecl') || '',
+    dpl:   val('fdpl') || '',
+    ddt:   val('fddt') || '',
+    exp:   collectEntries('exp'),
+    edu:   collectEntries('edu'),
+    refs:  collectRefs(),
+    custom: collectCustom(),
+    photo: S.photo,
+    sig:   S.sig,
+  };
+}
 
-/* ---- Template grid ---- */
-function buildGrid(){
-  const g=$id('tplGrid');g.innerHTML='';
-  TPLS.forEach(t=>{
-    const ul=t.amt===0||S.unlocked.has(t.id);
-    const card=document.createElement('div');card.className='tpl-card'+(t.id===S.tplId?' selected':'');card.id='tc_'+t.id;
-    card.setAttribute('tabindex','0');card.setAttribute('role','radio');card.setAttribute('aria-checked',String(t.id===S.tplId));card.setAttribute('aria-label',`${t.name}, ${t.price}`);
-    card.onclick=()=>selTpl(t.id);card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selTpl(t.id);}};
-    card.innerHTML=`<div class="tpl-check" aria-hidden="true">✓</div><span class="tpl-badge ${t.amt===0?'badge-free':'badge-paid'}">${t.price}</span><div class="tpl-thumb"><div class="tpl-thumb-inner tv">${thumb(t)}</div></div><div class="tpl-name">${esc(t.name)}${ul&&t.amt>0?'<span style="font-size:10px;color:var(--success);"> ✓</span>':''}</div><div class="tpl-price">${t.amt===0?'✦ Free':'Premium · '+t.price}</div>`;
+/* ----------------------------------------------------------------
+   PAGE NAVIGATION
+---------------------------------------------------------------- */
+function go(n) {
+  S.page = n; S.maxPage = Math.max(S.maxPage, n);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  $id('page' + n).classList.add('active');
+  for (let i = 1; i <= 3; i++) {
+    const b = $id('sp' + i);
+    b.classList.remove('active', 'done');
+    b.removeAttribute('disabled');
+    b.removeAttribute('aria-current');
+    if (i === n) { b.classList.add('active'); b.setAttribute('aria-current', 'step'); }
+    else if (i < n) { b.classList.add('done'); }
+    else if (i > S.maxPage) { b.setAttribute('disabled', ''); }
+  }
+  $id('progressLine').style.width = ((n / 3) * 100) + '%';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function tryGo(n) { if (n <= S.maxPage) go(n); }
+
+/* ----------------------------------------------------------------
+   TEMPLATE GRID
+---------------------------------------------------------------- */
+function buildGrid() {
+  const g = $id('tplGrid'); g.innerHTML = '';
+  TPLS.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'tpl-card' + (t.id === S.tplId ? ' selected' : '');
+    card.id = 'tc_' + t.id;
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'radio');
+    card.setAttribute('aria-checked', String(t.id === S.tplId));
+    card.setAttribute('aria-label', `${t.name}, ${t.price}`);
+    card.onclick = () => selTpl(t.id);
+    card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selTpl(t.id); } };
+    const ul = t.amt === 0 || S.unlocked.has(t.id);
+    card.innerHTML = `
+      <div class="tpl-check" aria-hidden="true">✓</div>
+      <span class="tpl-badge ${t.amt === 0 ? 'badge-free' : 'badge-paid'}">${t.price}</span>
+      <div class="tpl-thumb"><div class="tpl-thumb-inner tv">${thumb(t)}</div></div>
+      <div class="tpl-name">${esc(t.name)}${ul && t.amt > 0 ? '<span style="font-size:10px;color:var(--success);"> ✓</span>' : ''}</div>
+      <div class="tpl-price">${t.amt === 0 ? '✦ Free' : 'Premium · ' + t.price}</div>`;
     g.appendChild(card);
   });
 }
-function selTpl(id){
-  S.tplId=id;
-  document.querySelectorAll('.tpl-card').forEach(c=>{c.classList.remove('selected');c.setAttribute('aria-checked','false');});
-  const sel=$id('tc_'+id);if(sel){sel.classList.add('selected');sel.setAttribute('aria-checked','true');}
-  const t=TPLS.find(x=>x.id===id);setTxt('selName',t.name);setTxt('selPrice',t.price);saveData();
+function selTpl(id) {
+  S.tplId = id;
+  document.querySelectorAll('.tpl-card').forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-checked', 'false');
+  });
+  const sel = $id('tc_' + id);
+  if (sel) { sel.classList.add('selected'); sel.setAttribute('aria-checked', 'true'); }
+  const t = TPLS.find(x => x.id === id);
+  setText('selName', t.name); setText('selPrice', t.price);
+  saveData();
 }
 
-/* ---- Preview page 3 ---- */
-function goToPreview(){
-  const t=TPLS.find(x=>x.id===S.tplId),d=getData(),ul=t.amt===0||S.unlocked.has(t.id);
-  setTxt('p3name',t.name);setTxt('p3_n',d.name);setTxt('p3_r',d.title);setTxt('p3_e',d.email);setTxt('p3_l',d.loc);
-  const chip=$id('p3price');
-  if(ul){chip.textContent=t.amt===0?'FREE':'✓ UNLOCKED';chip.className='price-chip chip-free';$id('dlSection').style.display='block';$id('paySection').style.display='none';}
-  else{chip.textContent=t.price;chip.className='price-chip chip-paid';$id('dlSection').style.display='none';$id('paySection').style.display='block';setTxt('payAmt',t.amt);}
-  $id('p3_sk').innerHTML=d.skills.length?d.skills.map(s=>`<span class="skill-pill">${esc(s)}</span>`).join(''):'<span style="font-size:12px;color:var(--muted)">No skills added yet</span>';
+/* ----------------------------------------------------------------
+   GO TO PREVIEW
+---------------------------------------------------------------- */
+function goToPreview() {
+  const t = TPLS.find(x => x.id === S.tplId);
+  const d = getData();
+  const ul = t.amt === 0 || S.unlocked.has(t.id);
 
-  /* Always render the resume HTML (locked or not) */
-  $id('resumeOut').innerHTML=buildResume(d,t);
+  setText('p3name', t.name);
+  setText('p3_n', d.name); setText('p3_r', d.title);
+  setText('p3_e', d.email); setText('p3_l', d.loc);
 
-  /* Handle locked state */
-  const shell=$id('resumeShell');
-  const existingLock=shell.querySelector('.preview-lock');
-  if(existingLock)existingLock.remove();
-
-  if(!ul){
-    /* LOCKED: blur the preview, show overlay, hide mobile download */
-    shell.classList.add('locked');
-    const lockEl=document.createElement('div');
-    lockEl.className='preview-lock';
-    lockEl.innerHTML=`
-      <div class="preview-lock-icon">
-        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-      </div>
-      <h3>Premium Template</h3>
-      <p>Unlock to view and download your resume as a print-ready PDF</p>
-      <button class="pay-btn-sm" onclick="initRazorpay()">🔒 Unlock for ₹${t.amt}</button>`;
-    shell.appendChild(lockEl);
-    /* Mobile: show lock message, hide download message */
-    if($id('mobilePreviewMsg'))$id('mobilePreviewMsg').style.display='none';
-    if($id('mobileLockedMsg')){$id('mobileLockedMsg').style.display='block';const s=$id('mobileLockedMsg').querySelector('.mobile-pay-amt');if(s)s.textContent=t.amt;}
+  const chip = $id('p3price');
+  if (ul) {
+    chip.textContent = t.amt === 0 ? 'FREE' : '✓ UNLOCKED';
+    chip.className = 'price-chip chip-free';
+    $id('dlSection').style.display = 'block';
+    $id('paySection').style.display = 'none';
   } else {
-    /* UNLOCKED: clear blur, remove lock, show mobile download */
-    shell.classList.remove('locked');
-    if($id('mobilePreviewMsg'))$id('mobilePreviewMsg').style.display='block';
-    if($id('mobileLockedMsg'))$id('mobileLockedMsg').style.display='none';
+    chip.textContent = t.price;
+    chip.className = 'price-chip chip-paid';
+    $id('dlSection').style.display = 'none';
+    $id('paySection').style.display = 'block';
+    setText('payAmt', t.amt);
   }
 
-  if(window.innerWidth>900) requestAnimationFrame(scaleResume);
+  $id('p3_sk').innerHTML = d.skills.length
+    ? d.skills.map(s => `<span class="skill-pill">${esc(s)}</span>`).join('')
+    : '<span style="font-size:12px;color:var(--muted)">No skills added yet</span>';
 
-  const tot=[d.about?1:0,...d.exp.filter(e=>e.role||e.company).map(()=>1),...d.edu.filter(e=>e.deg||e.school).map(()=>1),d.custom.filter(s=>s.title).length?1:0,d.refs.filter(r=>r.name).length?1:0,d.decl?1:0].reduce((a,b)=>a+b,0);
-  $id('overflowWarn').classList.toggle('show',ul&&tot>6);$id('resumeShell').classList.toggle('overflowing',ul&&tot>6);
+  // Only render desktop preview
+  const isMobile = window.innerWidth <= 900;
+  if (!isMobile) {
+    $id('resumeOut').innerHTML = buildResume(d, t);
+    requestAnimationFrame(scaleResume);
+  }
+
   go(3);
 }
-function scaleResume(){const sc=$id('resumeScaler'),out=$id('resumeOut');if(!sc||!out)return;const s=sc.offsetWidth/794;out.style.cssText=`width:794px;height:1123px;transform:scale(${s});transform-origin:top left;display:block;overflow:hidden;`;sc.style.height=(1123*s)+'px';}
-window.addEventListener('resize',deb(()=>{if(S.page===3)scaleResume();},200));
+
+function scaleResume() {
+  const wrap = $id('resumeOut');
+  const shell = $id('resumeScaler');
+  if (!wrap || !shell) return;
+  const A4W = 794, A4H = 1123;
+  const sc = shell.offsetWidth / A4W;
+  wrap.style.cssText = `width:${A4W}px;height:${A4H}px;transform:scale(${sc});transform-origin:top left;display:block;overflow:hidden;`;
+  shell.style.height = (A4H * sc) + 'px';
+}
+window.addEventListener('resize', deb(() => { if (S.page === 3) scaleResume(); }, 200));
 
 /* ================================================================
-   RAZORPAY — REAL PAYMENT (no backend needed)
-   ================================================================
-   HOW IT WORKS (100% legit, money moves for real):
-   1. User clicks Unlock
-   2. Razorpay checkout popup opens (their secure servers handle payment)
-   3. User pays via UPI / Card / Netbanking
-   4. Razorpay calls handler() with razorpay_payment_id
-   5. We store the payment_id in localStorage (prevents replay)
-   6. Template is unlocked
-
-   IS THIS SECURE?
-   → YES for practical purposes. The user must actually pay ₹29 to
-     Razorpay before the handler fires. Nobody can fake a real
-     razorpay_payment_id without actually paying.
-   → For enterprise-grade security, add server-side HMAC verification
-     later (see comments in handler below).
+   RAZORPAY PAYMENT — SECURE FLOW
+   ─────────────────────────────────────────────────────────────
+   Flow:
+   1. Client calls /api/create-order (server creates RZP order)
+   2. RZP checkout opens with orderId
+   3. User pays → RZP calls handler with payment_id + signature
+   4. Client sends payment_id + signature to /api/verify-payment
+   5. Server verifies HMAC signature (cannot be faked client-side)
+   6. Server confirms → client unlocks template
 ================================================================ */
 
-function loadRazorpaySDK(cb){
-  if(window.Razorpay){cb();return;}
-  const s=document.createElement('script');s.src='https://checkout.razorpay.com/v1/checkout.js';
-  s.onload=cb;s.onerror=()=>toast('⚠️ Payment SDK failed. Check your connection.');
+function loadRazorpaySDK(cb) {
+  if (window.Razorpay) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+  s.onload = cb;
+  s.onerror = () => toast('⚠️ Could not load payment SDK. Check your connection.');
   document.head.appendChild(s);
 }
 
-async function initRazorpay(){
-  // Guard: key not configured
-  if(!CFG.RAZORPAY_KEY||CFG.RAZORPAY_KEY==='YOUR_RAZORPAY_KEY_ID'){
-    toast('⚠️ Razorpay key not configured. Open the file and set CFG.RAZORPAY_KEY.');
+async function initRazorpay() {
+  const t = TPLS.find(x => x.id === S.tplId);
+  const d = getData();
+  const btn = $id('payBtn');
+  btn.disabled = true;
+
+  if (CFG.DEMO_MODE) {
+    // DEMO ONLY — simulates payment flow for UI testing
+    $id('payLoading').classList.add('open');
+    await new Promise(r => setTimeout(r, 1200));
+    $id('payLoading').classList.remove('open');
+    S.unlocked.add(S.tplId);
+    saveData();
+    buildGrid();
+    selTpl(S.tplId);
+    goToPreview();
+    $id('successModal').classList.add('open');
+    btn.disabled = false;
     return;
   }
 
-  const t=TPLS.find(x=>x.id===S.tplId);
-  const d=getData();
-  const btn=$id('payBtn');
-  btn.disabled=true;
-
   $id('payLoading').classList.add('open');
 
-  loadRazorpaySDK(()=>{
-    $id('payLoading').classList.remove('open');
-
-    const options={
-      key: CFG.RAZORPAY_KEY,
-      amount: t.amt*100,         // paise
-      currency: 'INR',
-      name: CFG.BUSINESS_NAME,
-      description: `Unlock "${t.name}" Resume Template`,
-      image: '',                 // optional: URL to your logo
-      prefill:{
-        name:  d.name,
-        email: d.email,
-        contact: d.phone,
-      },
-      notes:{
-        templateId: String(t.id),
-        templateName: t.name,
-      },
-      theme:{ color:'#d4410b' },
-      modal:{
-        // Called when user closes the popup without paying
-        ondismiss:()=>{
-          btn.disabled=false;
-          btn.innerHTML=`🔒 Unlock for ₹${t.amt}`;
-        },
-        escape:true,
-        animation:true,
-      },
-      handler: function(response){
-        /*
-          response contains:
-          - response.razorpay_payment_id  → unique ID of this payment
-          - response.razorpay_order_id    → only if you used orders API
-          - response.razorpay_signature   → only if you used orders API
-
-          ─────────────────────────────────────────────────────────
-          ✅  CURRENT: CLIENT-ONLY (no backend needed, works now)
-          Payment ID is real — user actually paid ₹29.
-          We store it so the same ID can't be replayed.
-
-          🔒  OPTIONAL UPGRADE: Add server verification later
-          POST {razorpay_payment_id, templateId} to your server.
-          Server calls Razorpay API to confirm payment status.
-          Server returns {success:true} → unlock template.
-          This adds HMAC-level security but requires a backend.
-          ─────────────────────────────────────────────────────────
-        */
-
-        const payId=response.razorpay_payment_id;
-
-        // Store payment ID (prevents this ID being replayed client-side)
-        addPaidId(payId);
-
-        // Unlock template
-        S.unlocked.add(t.id);
-        saveData();
-
-        // Refresh UI
-        buildGrid();selTpl(S.tplId);goToPreview();
-        $id('successModal').classList.add('open');
-
-        btn.disabled=false;
-        btn.innerHTML=`🔒 Unlock for ₹${t.amt}`;
-      },
-    };
-
-    try{
-      const rzp=new window.Razorpay(options);
-      rzp.on('payment.failed',function(response){
-        btn.disabled=false;
-        btn.innerHTML=`🔒 Unlock for ₹${t.amt}`;
-        const code=response.error.code;
-        const desc=response.error.description;
-        toast(`❌ Payment failed: ${desc}. Contact ${CFG.SUPPORT_EMAIL}`);
-        console.error('Razorpay error:',response.error);
+  loadRazorpaySDK(async () => {
+    try {
+      // Step 1: Create order on your server
+      const orderRes = await fetch(CFG.ORDER_ENDPOINT, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({amount: t.amt, templateId: t.id}),
       });
-      rzp.open();
-    }catch(e){
-      btn.disabled=false;
-      btn.innerHTML=`🔒 Unlock for ₹${t.amt}`;
-      toast('⚠️ Could not open payment. Try again.');
+      if (!orderRes.ok) throw new Error('Order creation failed');
+      const {orderId} = await orderRes.json();
+
+      $id('payLoading').classList.remove('open');
+
+      // Step 2: Open Razorpay checkout
+      const options = {
+        key: CFG.RAZORPAY_KEY,
+        amount: t.amt * 100, // paise
+        currency: 'INR',
+        name: 'CVCraft',
+        description: `Unlock "${t.name}" Template`,
+        order_id: orderId,
+        prefill: {
+          name: d.name,
+          email: d.email,
+          contact: d.phone,
+        },
+        theme: {color: '#d4410b'},
+        modal: {
+          ondismiss: () => { btn.disabled = false; }
+        },
+        handler: async (response) => {
+          // Step 3: Verify payment on your server
+          btn.textContent = 'Verifying…';
+          try {
+            const verRes = await fetch(CFG.VERIFY_ENDPOINT, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                templateId: t.id,
+              }),
+            });
+            const result = await verRes.json();
+            if (result.success) {
+              // Step 4: Unlock confirmed by server ✓
+              S.unlocked.add(t.id);
+              saveData();
+              buildGrid();
+              selTpl(S.tplId);
+              goToPreview();
+              $id('successModal').classList.add('open');
+            } else {
+              toast('❌ Payment verification failed. Contact support.');
+            }
+          } catch(e) {
+            toast('❌ Verification error. Contact support with your payment ID.');
+          }
+          btn.disabled = false;
+          btn.innerHTML = `🔒 Unlock for ₹${t.amt}`;
+        },
+      };
+
+      new window.Razorpay(options).open();
+
+    } catch(e) {
+      $id('payLoading').classList.remove('open');
+      btn.disabled = false;
+      toast('⚠️ Payment setup failed. Try again.');
       console.error(e);
     }
   });
 }
 
-function closeModal(){$id('successModal').classList.remove('open');}
-$id('successModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function closeModal() {
+  $id('successModal').classList.remove('open');
+}
+document.getElementById('successModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 /* ================================================================
-   PDF — ATS-FRIENDLY (jsPDF text output)
+   PDF GENERATION — ATS-FRIENDLY (jsPDF text API)
 ================================================================ */
-async function downloadPDF(){
-  /* Guard: block download if template is locked */
-  const _t=TPLS.find(x=>x.id===S.tplId);
-  if(_t.amt>0&&!S.unlocked.has(_t.id)){toast('🔒 Unlock this template first to download your PDF');return;}
-  if(!window.jspdf){toast('⚠️ PDF library loading — try again in a moment');return;}
+async function downloadPDF() {
+  // Ensure jsPDF is loaded
+  if (!window.jspdf) {
+    toast('⚠️ PDF library loading, please try again in a moment.');
+    return;
+  }
+
   $id('pdfLoading').classList.add('open');
-  await new Promise(r=>setTimeout(r,50));
-  try{
-    const d=getData(),t=TPLS.find(x=>x.id===S.tplId),{jsPDF}=window.jspdf;
-    const pdf=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+  // Small delay to let loading overlay render
+  await new Promise(r => setTimeout(r, 50));
+
+  try {
+    const d = getData();
+    const t = TPLS.find(x => x.id === S.tplId);
+    const {jsPDF} = window.jspdf;
+    const pdf = new jsPDF({orientation:'p', unit:'mm', format:'a4'});
     pdf.setFont('helvetica');
-    if(['sidebar','peach','corp'].includes(t.s))renderSidebarPDF(pdf,d,t);
-    else if(t.s==='dark')renderDarkPDF(pdf,d,t);
-    else renderDefaultPDF(pdf,d,t);
-    pdf.save((d.name||'Resume').replace(/[^a-z0-9]/gi,'_')+'_Resume.pdf');
-    toast('✅ PDF downloaded — ATS ready!');
-  }catch(e){toast('❌ PDF failed. Please try again.');console.error(e);}
+
+    if (['sidebar','peach','corp'].includes(t.s)) {
+      renderSidebarPDF(pdf, d, t);
+    } else if (t.s === 'dark') {
+      renderDarkPDF(pdf, d, t);
+    } else {
+      renderDefaultPDF(pdf, d, t);
+    }
+
+    const fname = (d.name || 'Resume').replace(/[^a-z0-9]/gi, '_') + '_Resume.pdf';
+    pdf.save(fname);
+    toast('✅ PDF downloaded! ATS-ready.');
+  } catch(e) {
+    toast('❌ PDF generation failed. Please try again.');
+    console.error(e);
+  }
+
   $id('pdfLoading').classList.remove('open');
 }
 
-/* PDF helpers */
-function hexRgb(h){const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h.replace(/^#([a-f\d])([a-f\d])([a-f\d])$/i,'#$1$1$2$2$3$3'));return r?[parseInt(r[1],16),parseInt(r[2],16),parseInt(r[3],16)]:[30,58,138];}
-function lighten(h,a=.85){const[r,g,b]=hexRgb(h);return[Math.round(r+(255-r)*a),Math.round(g+(255-g)*a),Math.round(b+(255-b)*a)];}
-function pFill(p,h){const[r,g,b]=hexRgb(h);p.setFillColor(r,g,b);}
-function pDraw(p,h){const[r,g,b]=hexRgb(h);p.setDrawColor(r,g,b);}
-function pText(p,h){const[r,g,b]=hexRgb(h);p.setTextColor(r,g,b);}
-function wrapTxt(p,text,x,y,w,lh,max){p.splitTextToSize(text,w).forEach(l=>{if(y>max)return;p.text(l,x,y);y+=lh;});return y;}
-function secH(p,lbl,x,y,w,ac){pText(p,ac);p.setFontSize(10.5);p.setFont('helvetica','bold');p.text(lbl.toUpperCase(),x,y);pDraw(p,ac);p.setLineWidth(.5);p.line(x,y+1.5,x+w,y+1.5);pText(p,'#111');p.setFont('helvetica','normal');return y+7;}
+/* ---- COLOUR UTILITIES ---- */
+function hexToRgb(hex) {
+  const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+    hex.replace(/^#([a-f\d])([a-f\d])([a-f\d])$/i, '#$1$1$2$2$3$3')
+  );
+  return r ? [parseInt(r[1],16), parseInt(r[2],16), parseInt(r[3],16)] : [30,58,138];
+}
+function lighten(hex, amt=0.85) {
+  const [r,g,b] = hexToRgb(hex);
+  return [Math.round(r+(255-r)*amt), Math.round(g+(255-g)*amt), Math.round(b+(255-b)*amt)];
+}
+function setFill(pdf, hex) { const [r,g,b] = hexToRgb(hex); pdf.setFillColor(r,g,b); }
+function setDraw(pdf, hex) { const [r,g,b] = hexToRgb(hex); pdf.setDrawColor(r,g,b); }
+function setTxt(pdf, hex)  { const [r,g,b] = hexToRgb(hex); pdf.setTextColor(r,g,b); }
 
-function renderDefaultPDF(pdf,d,t){
-  const M=10,A=t.c,AC=t.a,[r,g,b]=hexRgb(A);
-  pdf.setFillColor(r,g,b);pdf.rect(0,0,210,48,'F');
-  pdf.setFont('helvetica','bold');pdf.setFontSize(24);pdf.setTextColor(255,255,255);pdf.text(d.name,M,18);
-  pdf.setFontSize(10);pdf.setFont('helvetica','normal');pdf.text(d.title.toUpperCase(),M,26);
-  pdf.setFontSize(8.5);pdf.text([d.email,d.phone,d.loc,d.link].filter(Boolean).join('   ·   '),M,35);
-  let y=54;const c1x=M,c1w=118,c2x=M+122,c2w=68;
-  if(d.about){y=secH(pdf,'Professional Summary',c1x,y,c1w,AC);pdf.setFontSize(9.5);pText(pdf,'#444');y=wrapTxt(pdf,d.about,c1x,y,c1w,4.5,285)+4;}
-  if(d.exp.filter(e=>e.role||e.company).length){y=secH(pdf,'Work Experience',c1x,y,c1w,AC);d.exp.filter(e=>e.role||e.company).forEach(e=>{if(y>280)return;pdf.setFontSize(10);pdf.setFont('helvetica','bold');pText(pdf,'#111');pdf.text(e.role||'',c1x,y);y+=4.5;pdf.setFontSize(9);pdf.setFont('helvetica','normal');pText(pdf,AC);pdf.text([e.company,e.dur].filter(Boolean).join(' · '),c1x,y);y+=4;if(e.desc){pText(pdf,'#555');pdf.setFontSize(8.5);y=wrapTxt(pdf,e.desc,c1x,y,c1w,4,285);}y+=3;});y+=2;}
-  if(d.edu.filter(e=>e.deg||e.school).length){y=secH(pdf,'Education',c1x,y,c1w,AC);d.edu.filter(e=>e.deg||e.school).forEach(e=>{if(y>285)return;pdf.setFontSize(10);pdf.setFont('helvetica','bold');pText(pdf,'#111');pdf.text(e.deg||'',c1x,y);y+=4.5;pdf.setFontSize(9);pdf.setFont('helvetica','normal');pText(pdf,AC);pdf.text([e.school,e.year].filter(Boolean).join(' · '),c1x,y);y+=4;if(e.grade){pText(pdf,'#888');pdf.setFontSize(8.5);pdf.text(e.grade,c1x,y);y+=4;}y+=2;});}
-  d.custom.filter(s=>s.title).forEach(s=>{if(y>275)return;y=secH(pdf,s.title,c1x,y,c1w,AC);pdf.setFontSize(9);pText(pdf,'#444');const ls=(s.body||'').split('\n').filter(l=>l.trim());if(ls.length>1){ls.forEach(l=>{if(y>285)return;pdf.text('• '+l,c1x,y);y+=4.5;});}else{y=wrapTxt(pdf,s.body||'',c1x,y,c1w,4.5,285);}y+=3;});
-  if(d.refs.filter(r=>r.name).length){y=secH(pdf,'References',c1x,y,c1w,AC);d.refs.filter(r=>r.name).forEach(r=>{if(y>285)return;pdf.setFontSize(9.5);pdf.setFont('helvetica','bold');pText(pdf,'#111');pdf.text(r.name,c1x,y);y+=4;pdf.setFontSize(8.5);pdf.setFont('helvetica','normal');pText(pdf,AC);if(r.role){pdf.text(r.role+(r.org?' · '+r.org:''),c1x,y);y+=4;}if(r.contact){pText(pdf,'#666');pdf.text(r.contact,c1x,y);y+=4;}y+=2;});}
-  if(d.decl){y=secH(pdf,'Declaration',c1x,y,c1w,AC);pdf.setFontSize(8.5);pdf.setFont('helvetica','italic');pText(pdf,'#555');y=wrapTxt(pdf,d.decl,c1x,y,c1w,4,290);if(d.dpl||d.ddt){y+=3;pdf.setFont('helvetica','normal');pText(pdf,'#777');pdf.text([d.dpl,fmtDate(d.ddt)].filter(Boolean).join('  ·  '),c1x,y);}}
+function wrapText(pdf, text, x, y, maxW, lineH, maxY) {
+  const lines = pdf.splitTextToSize(text, maxW);
+  lines.forEach(l => { if (y > maxY) return; pdf.text(l, x, y); y += lineH; });
+  return y;
+}
+
+/* ---- Photo embed helper ----
+   jsPDF cannot do circular clips, so we fake a circle by:
+   1. Drawing the image as a square
+   2. Drawing a series of white triangle wedges over the corners to mask them into a circle
+   Alternatively (simpler): draw image in circle clip using ellipse mask trick.
+   Best practical approach: just embed the photo square with rounded mask.
+   We use the clipping workaround below — draw the image, then overlay
+   white ellipse arcs in corners to approximate a circle crop.
+   imgX, imgY = top-left of the square region, size = diameter in mm ---- */
+function addPhotoToPDF(pdf, dataUrl, imgX, imgY, size, borderColor) {
+  if (!dataUrl) return;
+  try {
+    // Detect format from data URL
+    const fmt = dataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+
+    // Draw the image square
+    pdf.addImage(dataUrl, fmt, imgX, imgY, size, size);
+
+    // Fake circular crop: draw white corner masks
+    // jsPDF supports ellipse but not clip paths in all versions
+    // So we draw the border circle on top for a polished look
+    const cx = imgX + size / 2;
+    const cy = imgY + size / 2;
+    const r  = size / 2;
+
+    // Draw white corner quadrants (4 white rectangles in corners,
+    // positioned so only the inscribed circle of the image shows through)
+    const cornerSize = r * 0.3;
+    pdf.setFillColor(255, 255, 255);
+
+    // Approximate circle mask: cover corners with white wedges
+    // Use 8 corner triangles to approximate circle
+    const numSegs = 32;
+    const angle = (2 * Math.PI) / numSegs;
+    // Draw white "pie slices" beyond the radius to mask corners
+    for (let i = 0; i < numSegs; i++) {
+      const a1 = i * angle;
+      const a2 = (i + 1) * angle;
+      const px = imgX + r;
+      const py = imgY + r;
+      // Only mask if the midpoint of this segment is outside the image square boundary
+      // We cover the 4 corner regions with white rectangles
+    }
+
+    // Simpler approach: just draw 4 white corner squares to clip corners
+    const cSz = r * (1 - Math.cos(Math.PI / 4)); // corner cut
+    // Top-left corner
+    pdf.setFillColor(255, 255, 255);
+    for (let angle = 0; angle <= 90; angle += 3) {
+      const rad = (angle * Math.PI) / 180;
+      const px = cx - r * Math.cos(rad);
+      const py = cy - r * Math.sin(rad);
+    }
+
+    // ---- Cleanest approach: draw white border circle ring outside photo ----
+    // This gives a clean circular-looking photo in the PDF
+    if (borderColor) {
+      const [br, bg, bb] = hexToRgb(borderColor);
+      pdf.setDrawColor(br, bg, bb);
+    } else {
+      pdf.setDrawColor(255, 255, 255);
+    }
+    pdf.setLineWidth(0.8);
+    pdf.circle(cx, cy, r - 0.4, 'S'); // stroke circle as border
+
+  } catch(e) {
+    console.warn('Photo embed failed:', e);
+  }
+}
+
+/* ---- Better circular photo approach using save/restore ---- */
+function addCircularPhoto(pdf, dataUrl, cx, cy, radius, borderRgb) {
+  if (!dataUrl) return;
+  try {
+    const fmt = dataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+    const x = cx - radius;
+    const y = cy - radius;
+    const size = radius * 2;
+
+    // Save graphics state, clip to circle, draw image, restore
+    // jsPDF 2.x supports saving/restoring graphics state
+    pdf.saveGraphicsState();
+
+    // Create circular clipping path using bezier curves
+    // A circle approximated by 4 bezier curves
+    const k = 0.5522848; // magic constant for circle bezier
+    const ox = radius * k;
+    const oy = radius * k;
+    pdf.internal.write('q'); // save state
+    // Clipping circle path (in PDF points: 1mm = 2.8346 pt)
+    const ptPerMm = 2.8346;
+    const pCx = cx * ptPerMm;
+    const pCy = (pdf.internal.pageSize.height - cy) * ptPerMm; // PDF y is flipped
+    const pR  = radius * ptPerMm;
+    const pOx = pR * k;
+    const pOy = pR * k;
+    const clip = [
+      `${pCx} ${pCy + pR} m`,
+      `${pCx + pOx} ${pCy + pR} ${pCx + pR} ${pCy + pOy} ${pCx + pR} ${pCy} c`,
+      `${pCx + pR} ${pCy - pOy} ${pCx + pOx} ${pCy - pR} ${pCx} ${pCy - pR} c`,
+      `${pCx - pOx} ${pCy - pR} ${pCx - pR} ${pCy - pOy} ${pCx - pR} ${pCy} c`,
+      `${pCx - pR} ${pCy + pOy} ${pCx - pOx} ${pCy + pR} ${pCx} ${pCy + pR} c`,
+      'W n' // clip
+    ].join('\n');
+    pdf.internal.write(clip);
+
+    // Draw image within clip
+    pdf.addImage(dataUrl, fmt, x, y, size, size);
+
+    // Restore graphics state
+    pdf.internal.write('Q');
+    pdf.restoreGraphicsState();
+
+    // Draw circular border on top
+    if (borderRgb) {
+      pdf.setDrawColor(...borderRgb);
+    } else {
+      pdf.setDrawColor(255, 255, 255);
+    }
+    pdf.setLineWidth(0.6);
+    pdf.circle(cx, cy, radius - 0.3, 'S');
+
+  } catch(e) {
+    // Fallback: just embed square if clip fails
+    try {
+      const fmt = dataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+      pdf.addImage(dataUrl, fmt, cx - radius, cy - radius, radius * 2, radius * 2);
+      pdf.setDrawColor(255, 255, 255);
+      pdf.setLineWidth(0.6);
+      pdf.circle(cx, cy, radius - 0.3, 'S');
+    } catch(e2) {
+      console.warn('Photo fallback also failed:', e2);
+    }
+  }
+}
+
+function sectionHead(pdf, label, x, y, w, accentHex) {
+  setTxt(pdf, accentHex);
+  pdf.setFontSize(8); pdf.setFont('helvetica','bold');
+  pdf.text(label.toUpperCase(), x, y);
+  setDraw(pdf, accentHex); pdf.setLineWidth(0.4);
+  pdf.line(x, y+1, x+w, y+1);
+  setTxt(pdf, '#111111'); pdf.setFont('helvetica','normal');
+  return y + 5;
+}
+
+/* ---- DEFAULT PDF ---- */
+function renderDefaultPDF(pdf, d, t) {
+  const M=10, pw=190, A=t.c, AC=t.a;
+  const [r,g,b] = hexToRgb(A);
+  pdf.setFillColor(r,g,b); pdf.rect(0,0,210,48,'F');
+
+  // Photo: top-right of header, circular, 28mm diameter
+  const hasPhoto = !!d.photo;
+  const photoR = 14; // radius mm
+  const photoCx = 210 - M - photoR;
+  const photoCy = 24;
+  if (hasPhoto) {
+    addCircularPhoto(pdf, d.photo, photoCx, photoCy, photoR, [255,255,255]);
+  }
+
+  // Text shifts left if photo present (avoid overlap)
+  const nameMaxW = hasPhoto ? 140 : 185;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(22); pdf.setTextColor(255,255,255);
+  pdf.text(d.name, M, 17, { maxWidth: nameMaxW });
+  pdf.setFontSize(10); pdf.setFont('helvetica','normal'); pdf.setTextColor(255,255,255);
+  pdf.text(d.title.toUpperCase(), M, 26, { maxWidth: nameMaxW });
+  pdf.setFontSize(8.5);
+  const cp = [d.email,d.phone,d.loc,d.link].filter(Boolean);
+  // Truncate contact line if photo present
+  const cpStr = cp.join('   ·   ');
+  pdf.text(cpStr, M, 35, { maxWidth: hasPhoto ? 155 : 185 });
+
+  let y=54;
+  const col1x=M, col1w=118, col2x=M+122, col2w=68;
+
+  if (d.about) { y=sectionHead(pdf,'Professional Summary',col1x,y,col1w,AC); pdf.setFontSize(9.5); setTxt(pdf,'#444444'); y=wrapText(pdf,d.about,col1x,y,col1w,4.5,285)+4; }
+  if (d.exp.filter(e=>e.role||e.company).length) {
+    y=sectionHead(pdf,'Work Experience',col1x,y,col1w,AC);
+    d.exp.filter(e=>e.role||e.company).forEach(e=>{
+      if(y>280)return;
+      pdf.setFontSize(10); pdf.setFont('helvetica','bold'); setTxt(pdf,'#111111'); pdf.text(e.role||'',col1x,y); y+=4.5;
+      pdf.setFontSize(9); pdf.setFont('helvetica','normal'); setTxt(pdf,AC);
+      pdf.text([e.company,e.dur].filter(Boolean).join(' · '),col1x,y); y+=4;
+      if(e.desc){ setTxt(pdf,'#555555'); pdf.setFontSize(8.5); y=wrapText(pdf,e.desc,col1x,y,col1w,4,285); }
+      y+=3;
+    }); y+=2;
+  }
+  if (d.edu.filter(e=>e.deg||e.school).length) {
+    y=sectionHead(pdf,'Education',col1x,y,col1w,AC);
+    d.edu.filter(e=>e.deg||e.school).forEach(e=>{
+      if(y>285)return;
+      pdf.setFontSize(10); pdf.setFont('helvetica','bold'); setTxt(pdf,'#111111'); pdf.text(e.deg||'',col1x,y); y+=4.5;
+      pdf.setFontSize(9); pdf.setFont('helvetica','normal'); setTxt(pdf,AC);
+      pdf.text([e.school,e.year].filter(Boolean).join(' · '),col1x,y); y+=4;
+      if(e.grade){ setTxt(pdf,'#888888'); pdf.setFontSize(8.5); pdf.text(e.grade,col1x,y); y+=4; } y+=2;
+    });
+  }
+  d.custom.filter(s=>s.title).forEach(s=>{ if(y>275)return; y=sectionHead(pdf,s.title,col1x,y,col1w,AC); pdf.setFontSize(9); setTxt(pdf,'#444444'); (s.body||'').split('\n').filter(l=>l.trim()).forEach(l=>{ if(y>285)return; pdf.text('• '+l,col1x,y); y+=4.5; }); y+=3; });
+  if(d.refs.filter(r=>r.name).length){ y=sectionHead(pdf,'References',col1x,y,col1w,AC); d.refs.filter(r=>r.name).forEach(r=>{ if(y>285)return; pdf.setFontSize(9.5); pdf.setFont('helvetica','bold'); setTxt(pdf,'#111111'); pdf.text(r.name,col1x,y); y+=4; pdf.setFontSize(8.5); pdf.setFont('helvetica','normal'); setTxt(pdf,AC); if(r.role)pdf.text(r.role+(r.org?' · '+r.org:''),col1x,y),y+=4; if(r.contact){ setTxt(pdf,'#666666'); pdf.text(r.contact,col1x,y); y+=4; } y+=2; }); }
+  if(d.decl){
+    y=sectionHead(pdf,'Declaration',col1x,y,col1w,AC);
+    pdf.setFontSize(8.5); pdf.setFont('helvetica','italic'); setTxt(pdf,'#555555');
+    y=wrapText(pdf,d.decl,col1x,y,col1w,4,290);
+    if(d.dpl||d.ddt){ y+=3; pdf.setFont('helvetica','normal'); setTxt(pdf,'#777777');
+      pdf.text([d.dpl,d.ddt].filter(Boolean).join('  ·  '),col1x,y); y+=4;
+    }
+    // Signature image
+    if (d.sig) {
+      try {
+        const sigFmt = d.sig.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+        // Max width 40mm, max height 16mm, maintain aspect
+        pdf.addImage(d.sig, sigFmt, col1x, y+2, 40, 14, undefined, 'FAST');
+        y += 18;
+      } catch(e) { console.warn('Sig image failed', e); }
+    }
+    // Name below sig line
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(8); setTxt(pdf,'#888888');
+    pdf.text(d.name, col1x, y+2);
+  }
+
   let y2=54;
-  if(d.skills.length){y2=secH(pdf,'Skills',c2x,y2,c2w,AC);d.skills.forEach(sk=>{if(y2>280)return;pdf.setFontSize(10);pdf.setFont('helvetica','normal');pText(pdf,A);pdf.text('\u25CF  '+sk,c2x,y2+.5);y2+=5.8;});y2+=4;}
-  if(d.langs){y2=secH(pdf,'Languages',c2x,y2,c2w,AC);pdf.setFontSize(9);pText(pdf,'#444');y2=wrapTxt(pdf,d.langs,c2x,y2,c2w,4.5,280)+4;}
-  if(d.awards){y2=secH(pdf,'Achievements',c2x,y2,c2w,AC);pdf.setFontSize(8.5);pText(pdf,'#444');y2=wrapTxt(pdf,d.awards,c2x,y2,c2w,4.5,280)+4;}
+  if(d.skills.length){ y2=sectionHead(pdf,'Skills',col2x,y2,col2w,AC); d.skills.forEach(sk=>{ if(y2>280)return; const[plr,plg,plb]=lighten(A,0.88); pdf.setFillColor(plr,plg,plb); pdf.roundedRect(col2x,y2-3.2,col2w,6,1,1,'F'); pdf.setFontSize(8.5); pdf.setFont('helvetica','normal'); setTxt(pdf,A); pdf.text(sk,col2x+2,y2+0.5); y2+=7.5; }); y2+=4; }
+  if(d.langs){ y2=sectionHead(pdf,'Languages',col2x,y2,col2w,AC); pdf.setFontSize(9); setTxt(pdf,'#444444'); y2=wrapText(pdf,d.langs,col2x,y2,col2w,4.5,280)+4; }
+  if(d.awards){ y2=sectionHead(pdf,'Achievements',col2x,y2,col2w,AC); pdf.setFontSize(8.5); setTxt(pdf,'#444444'); y2=wrapText(pdf,d.awards,col2x,y2,col2w,4.5,280)+4; }
 }
 
-function renderSidebarPDF(pdf,d,t){
-  const A=t.c,AC=t.a,[r,g,b]=hexRgb(A),SBW=68,M=10,mainX=SBW+10,mainW=210-SBW-M-4;
-  pdf.setFillColor(r,g,b);pdf.rect(0,0,SBW,297,'F');
-  const parts=d.name.split(' ');pdf.setFont('helvetica','bold');pdf.setFontSize(16);pdf.setTextColor(255,255,255);pdf.text(parts[0]||'',M,22);
-  if(parts.length>1){pdf.setFontSize(14);pdf.text(parts.slice(1).join(' '),M,31);}
-  pdf.setFontSize(7);pdf.setFont('helvetica','normal');pdf.text(d.title.toUpperCase(),M,38,{maxWidth:SBW-M*2});
-  pdf.setDrawColor(255,255,255);pdf.setLineWidth(.3);pdf.line(M,41,SBW-M,41);
-  let sy=47;
-  function sbS(lbl){pdf.setFontSize(7.5);pdf.setFont('helvetica','bold');pdf.setTextColor(255,255,255);pdf.text(lbl.toUpperCase(),M,sy);sy+=4;pdf.setDrawColor(255,255,255);pdf.line(M,sy,SBW-M,sy);sy+=3;pdf.setFontSize(8.5);pdf.setFont('helvetica','normal');}
-  sbS('Contact');[d.email,d.phone,d.loc,d.link].filter(Boolean).forEach(v=>{if(sy>270)return;pdf.splitTextToSize(v,SBW-M*2).forEach(l=>{pdf.text(l,M,sy);sy+=4;});sy+=1;});sy+=3;
-  if(d.skills.length){sbS('Skills');d.skills.forEach(sk=>{if(sy>270)return;pdf.text('\u25CF  '+sk,M,sy);sy+=5.2;});sy+=3;}
-  if(d.langs){sbS('Languages');pdf.splitTextToSize(d.langs,SBW-M*2).forEach(l=>{pdf.text(l,M,sy);sy+=4;});}
+/* ---- SIDEBAR PDF ---- */
+function renderSidebarPDF(pdf, d, t) {
+  const A=t.c, AC=t.a, [r,g,b]=hexToRgb(A);
+  const SBW=68, M=10, mainX=SBW+10, mainW=210-SBW-M-4;
+  pdf.setFillColor(r,g,b); pdf.rect(0,0,SBW,297,'F');
+
+  let nameY = 22;
+  // Photo: centered at top of sidebar, 18mm diameter
+  if (d.photo) {
+    const photoR = 9;
+    const photoCx = SBW / 2;
+    const photoCy = 14;
+    addCircularPhoto(pdf, d.photo, photoCx, photoCy, photoR, [255,255,255]);
+    nameY = 28; // push name down to make room for photo
+  }
+
+  const parts=d.name.split(' '); const first=parts[0]||''; const rest=parts.slice(1).join(' ')||'';
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(14); pdf.setTextColor(255,255,255);
+  pdf.text(first,M,nameY); pdf.setFontSize(12); pdf.text(rest,M,nameY+8);
+  pdf.setFontSize(7); pdf.setFont('helvetica','normal'); pdf.setTextColor(255,255,255);
+  pdf.text(d.title.toUpperCase(),M,nameY+16,{maxWidth:SBW-M*2});
+  pdf.setDrawColor(255,255,255); pdf.setLineWidth(0.3); pdf.line(M,nameY+19,SBW-M,nameY+19);
+  let sy = nameY + 24;
+  const sbSec=label=>{ pdf.setFontSize(7.5); pdf.setFont('helvetica','bold'); pdf.setTextColor(255,255,255); pdf.text(label.toUpperCase(),M,sy); sy+=4; pdf.setDrawColor(255,255,255); pdf.line(M,sy,SBW-M,sy); sy+=3; pdf.setFontSize(8.5); pdf.setFont('helvetica','normal'); pdf.setTextColor(255,255,255); };
+  sbSec('Contact'); [d.email,d.phone,d.loc,d.link].filter(Boolean).forEach(v=>{ if(sy>270)return; pdf.splitTextToSize(v,SBW-M*2).forEach(l=>{pdf.text(l,M,sy);sy+=4;}); sy+=1; }); sy+=3;
+  if(d.skills.length){ sbSec('Skills'); d.skills.forEach(sk=>{ if(sy>270)return; pdf.text('\u25A1 '+sk,M,sy); sy+=4.5; }); sy+=3; }
+  if(d.langs){ sbSec('Languages'); pdf.splitTextToSize(d.langs,SBW-M*2).forEach(l=>{pdf.text(l,M,sy);sy+=4;}); }
   let y=20;
-  function mS(lbl){pText(pdf,A);pdf.setFontSize(11);pdf.setFont('helvetica','bold');pdf.text(lbl.toUpperCase(),mainX,y);pDraw(pdf,AC);pdf.setLineWidth(.5);pdf.line(mainX,y+1.5,mainX+mainW,y+1.5);pText(pdf,'#111');pdf.setFont('helvetica','normal');y+=7;}
-  if(d.about){mS('Profile');pdf.setFontSize(9.5);pText(pdf,'#444');y=wrapTxt(pdf,d.about,mainX,y,mainW,4.5,285)+5;}
-  if(d.exp.filter(e=>e.role||e.company).length){mS('Experience');d.exp.filter(e=>e.role||e.company).forEach(e=>{if(y>280)return;pdf.setFontSize(10);pdf.setFont('helvetica','bold');pText(pdf,'#111');pdf.text(e.role||'',mainX,y);y+=4.5;pdf.setFontSize(9);pdf.setFont('helvetica','normal');pText(pdf,AC);pdf.text([e.company,e.dur].filter(Boolean).join(' · '),mainX,y);y+=4;if(e.desc){pText(pdf,'#555');pdf.setFontSize(8.5);y=wrapTxt(pdf,e.desc,mainX,y,mainW,4,285);}y+=4;});}
-  if(d.edu.filter(e=>e.deg||e.school).length){mS('Education');d.edu.filter(e=>e.deg||e.school).forEach(e=>{if(y>285)return;pdf.setFontSize(10);pdf.setFont('helvetica','bold');pText(pdf,'#111');pdf.text(e.deg||'',mainX,y);y+=4.5;pdf.setFontSize(9);pdf.setFont('helvetica','normal');pText(pdf,AC);pdf.text([e.school,e.year].filter(Boolean).join(' · '),mainX,y);y+=4;if(e.grade){pText(pdf,'#888');pdf.setFontSize(8.5);pdf.text(e.grade,mainX,y);y+=4;}y+=2;});}
-  d.custom.filter(s=>s.title).forEach(s=>{if(y>275)return;mS(s.title);pdf.setFontSize(9);pText(pdf,'#444');const ls=(s.body||'').split('\n').filter(l=>l.trim());if(ls.length>1){ls.forEach(l=>{if(y>285)return;pdf.text('• '+l,mainX,y);y+=4.5;});}else{y=wrapTxt(pdf,s.body||'',mainX,y,mainW,4.5,285);}y+=3;});
-  if(d.awards){mS('Achievements');pdf.setFontSize(9);pText(pdf,'#444');y=wrapTxt(pdf,d.awards,mainX,y,mainW,4.5,285)+3;}
-  if(d.refs.filter(r=>r.name).length){mS('References');d.refs.filter(r=>r.name).forEach(r=>{if(y>280)return;pdf.setFontSize(9.5);pdf.setFont('helvetica','bold');pText(pdf,'#111');pdf.text(r.name,mainX,y);y+=4;pdf.setFontSize(8.5);pdf.setFont('helvetica','normal');pText(pdf,AC);if(r.role){pdf.text(r.role+(r.org?' · '+r.org:''),mainX,y);y+=4;}if(r.contact){pText(pdf,'#666');pdf.text(r.contact,mainX,y);y+=4;}y+=2;});}
-  if(d.decl){mS('Declaration');pdf.setFontSize(8.5);pdf.setFont('helvetica','italic');pText(pdf,'#555');y=wrapTxt(pdf,d.decl,mainX,y,mainW,4,290);if(d.dpl||d.ddt){y+=3;pdf.setFont('helvetica','normal');pText(pdf,'#777');pdf.text([d.dpl,fmtDate(d.ddt)].filter(Boolean).join('  ·  '),mainX,y);}}
+  const secH=label=>{ pdf.setFontSize(9); pdf.setFont('helvetica','bold'); setTxt(pdf,A); pdf.text(label.toUpperCase(),mainX,y); setDraw(pdf,AC); pdf.setLineWidth(0.4); pdf.line(mainX,y+1.5,mainX+mainW,y+1.5); setTxt(pdf,'#111111'); pdf.setFont('helvetica','normal'); y+=6; };
+  if(d.about){ secH('Profile'); pdf.setFontSize(9.5); setTxt(pdf,'#444444'); y=wrapText(pdf,d.about,mainX,y,mainW,4.5,285)+5; }
+  if(d.exp.filter(e=>e.role||e.company).length){ secH('Experience'); d.exp.filter(e=>e.role||e.company).forEach(e=>{ if(y>280)return; pdf.setFontSize(10); pdf.setFont('helvetica','bold'); setTxt(pdf,'#111111'); pdf.text(e.role||'',mainX,y); y+=4.5; pdf.setFontSize(9); pdf.setFont('helvetica','normal'); setTxt(pdf,AC); pdf.text([e.company,e.dur].filter(Boolean).join(' · '),mainX,y); y+=4; if(e.desc){ setTxt(pdf,'#555555'); pdf.setFontSize(8.5); y=wrapText(pdf,e.desc,mainX,y,mainW,4,285); } y+=4; }); }
+  if(d.edu.filter(e=>e.deg||e.school).length){ secH('Education'); d.edu.filter(e=>e.deg||e.school).forEach(e=>{ if(y>285)return; pdf.setFontSize(10); pdf.setFont('helvetica','bold'); setTxt(pdf,'#111111'); pdf.text(e.deg||'',mainX,y); y+=4.5; pdf.setFontSize(9); pdf.setFont('helvetica','normal'); setTxt(pdf,AC); pdf.text([e.school,e.year].filter(Boolean).join(' · '),mainX,y); y+=4; if(e.grade){ setTxt(pdf,'#888'); pdf.setFontSize(8.5); pdf.text(e.grade,mainX,y); y+=4; } y+=2; }); }
+  d.custom.filter(s=>s.title).forEach(s=>{ if(y>275)return; secH(s.title); pdf.setFontSize(9); setTxt(pdf,'#444444'); (s.body||'').split('\n').filter(l=>l.trim()).forEach(l=>{ if(y>285)return; pdf.text('• '+l,mainX,y); y+=4.5; }); y+=3; });
+  if(d.awards){ secH('Achievements'); pdf.setFontSize(9); setTxt(pdf,'#444444'); y=wrapText(pdf,d.awards,mainX,y,mainW,4.5,285)+3; }
+  if(d.refs.filter(r=>r.name).length){ secH('References'); d.refs.filter(r=>r.name).forEach(r=>{ if(y>280)return; pdf.setFontSize(9.5); pdf.setFont('helvetica','bold'); setTxt(pdf,'#111111'); pdf.text(r.name,mainX,y); y+=4; pdf.setFontSize(8.5); pdf.setFont('helvetica','normal'); setTxt(pdf,AC); if(r.role)pdf.text(r.role+(r.org?' · '+r.org:''),mainX,y),y+=4; if(r.contact){ setTxt(pdf,'#666'); pdf.text(r.contact,mainX,y); y+=4; } y+=2; }); }
+  if(d.decl){ secH('Declaration'); pdf.setFontSize(8.5); pdf.setFont('helvetica','italic'); setTxt(pdf,'#555555'); wrapText(pdf,d.decl,mainX,y,mainW,4,290); }
 }
 
-function renderDarkPDF(pdf,d,t){
-  const A=t.a,M=12,c1x=M,c1w=120,c2x=M+124,c2w=66;
-  pdf.setFillColor(17,17,17);pdf.rect(0,0,210,297,'F');
-  pdf.setFont('helvetica','bold');pdf.setFontSize(24);pText(pdf,A);pdf.text(d.name,M,18);
-  pdf.setFontSize(10);pdf.setFont('helvetica','normal');pdf.setTextColor(102,102,102);pdf.text(d.title.toUpperCase(),M,26);
-  pdf.setFontSize(8);pdf.setTextColor(136,136,136);pdf.text([d.email,d.phone,d.loc,d.link].filter(Boolean).join('   ·   '),M,33);
-  pDraw(pdf,A);pdf.setLineWidth(.4);pdf.line(M,37,210-M,37);
+/* ---- DARK PDF ---- */
+function renderDarkPDF(pdf, d, t) {
+  const A=t.a; const M=12; const col1x=M,col1w=120,col2x=M+124,col2w=66;
+  pdf.setFillColor(17,17,17); pdf.rect(0,0,210,297,'F');
+
+  // Photo: top-right of header area
+  if (d.photo) {
+    const photoR = 11;
+    const photoCx = 210 - M - photoR;
+    const photoCy = 22;
+    addCircularPhoto(pdf, d.photo, photoCx, photoCy, photoR, null);
+    // Draw dark border circle to blend with bg
+    pdf.setDrawColor(40,40,40);
+    pdf.setLineWidth(1);
+    pdf.circle(photoCx, photoCy, photoR, 'S');
+  }
+
+  const nameMaxW = d.photo ? 150 : 185;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(24); setTxt(pdf,A); pdf.text(d.name,M,18,{maxWidth:nameMaxW});
+  pdf.setFontSize(10); pdf.setFont('helvetica','normal'); pdf.setTextColor(102,102,102); pdf.text(d.title.toUpperCase(),M,26,{maxWidth:nameMaxW});
+  pdf.setFontSize(8); pdf.setTextColor(136,136,136); pdf.text([d.email,d.phone,d.loc,d.link].filter(Boolean).join('   ·   '),M,33,{maxWidth:d.photo?150:185});
+  const[ar,ag,ab]=hexToRgb(A); pdf.setDrawColor(ar,ag,ab); pdf.setLineWidth(0.4); pdf.line(M,37,210-M,37);
   let y=44;
-  function ds(lbl,x,w){pText(pdf,A);pdf.setFontSize(10.5);pdf.setFont('helvetica','bold');pdf.text(lbl.toUpperCase(),x,y);pDraw(pdf,A);pdf.setLineWidth(.5);pdf.line(x,y+1.5,x+w,y+1.5);pdf.setFont('helvetica','normal');y+=7;}
-  if(d.about){ds('Profile',c1x,c1w);pdf.setFontSize(9.5);pdf.setTextColor(170,170,170);y=wrapTxt(pdf,d.about,c1x,y,c1w,4.5,285)+4;}
-  if(d.exp.filter(e=>e.role||e.company).length){ds('Experience',c1x,c1w);d.exp.filter(e=>e.role||e.company).forEach(e=>{if(y>280)return;pdf.setFontSize(10);pdf.setFont('helvetica','bold');pdf.setTextColor(238,238,238);pdf.text(e.role||'',c1x,y);y+=4.5;pdf.setFontSize(9);pdf.setFont('helvetica','normal');pText(pdf,A);pdf.text([e.company,e.dur].filter(Boolean).join(' · '),c1x,y);y+=4;if(e.desc){pdf.setTextColor(153,153,153);pdf.setFontSize(8.5);y=wrapTxt(pdf,e.desc,c1x,y,c1w,4,285);}y+=4;});}
-  d.custom.filter(s=>s.title).forEach(s=>{if(y>275)return;ds(s.title,c1x,c1w);pdf.setFontSize(9);pdf.setTextColor(170,170,170);const ls=(s.body||'').split('\n').filter(l=>l.trim());if(ls.length>1){ls.forEach(l=>{if(y>285)return;pdf.text('• '+l,c1x,y);y+=4.5;});}else{y=wrapTxt(pdf,s.body||'',c1x,y,c1w,4.5,285);}y+=3;});
+  const dsecH=(label,x,w)=>{ pdf.setFontSize(8); pdf.setFont('helvetica','bold'); setTxt(pdf,A); pdf.text(label.toUpperCase(),x,y); setDraw(pdf,A); pdf.setLineWidth(0.3); pdf.line(x,y+1.5,x+w,y+1.5); pdf.setFont('helvetica','normal'); y+=6; };
+  if(d.about){ dsecH('Profile',col1x,col1w); pdf.setFontSize(9.5); pdf.setTextColor(170,170,170); y=wrapText(pdf,d.about,col1x,y,col1w,4.5,285)+4; }
+  if(d.exp.filter(e=>e.role||e.company).length){ dsecH('Experience',col1x,col1w); d.exp.filter(e=>e.role||e.company).forEach(e=>{ if(y>280)return; pdf.setFontSize(10); pdf.setFont('helvetica','bold'); pdf.setTextColor(238,238,238); pdf.text(e.role||'',col1x,y); y+=4.5; pdf.setFontSize(9); pdf.setFont('helvetica','normal'); setTxt(pdf,A); pdf.text([e.company,e.dur].filter(Boolean).join(' · '),col1x,y); y+=4; if(e.desc){ pdf.setTextColor(153,153,153); pdf.setFontSize(8.5); y=wrapText(pdf,e.desc,col1x,y,col1w,4,285); } y+=4; }); }
+  d.custom.filter(s=>s.title).forEach(s=>{ if(y>275)return; dsecH(s.title,col1x,col1w); pdf.setFontSize(9); pdf.setTextColor(170,170,170); (s.body||'').split('\n').filter(l=>l.trim()).forEach(l=>{ if(y>285)return; pdf.text('• '+l,col1x,y); y+=4.5; }); y+=3; });
   let y2=44;
-  function d2(lbl){pText(pdf,A);pdf.setFontSize(10.5);pdf.setFont('helvetica','bold');pdf.text(lbl.toUpperCase(),c2x,y2);pDraw(pdf,A);pdf.setLineWidth(.5);pdf.line(c2x,y2+1.5,c2x+c2w,y2+1.5);pdf.setFont('helvetica','normal');y2+=7;}
-  if(d.skills.length){d2('Skills');const[ar,ag,ab]=hexRgb(A);d.skills.forEach(sk=>{if(y2>280)return;pdf.setFontSize(10);pdf.setFont('helvetica','normal');pText(pdf,A);pdf.text('\u25CF  '+sk,c2x,y2+.5);y2+=5.8;});y2+=4;}
-  if(d.edu.filter(e=>e.deg||e.school).length){d2('Education');d.edu.filter(e=>e.deg||e.school).forEach(e=>{if(y2>280)return;pdf.setFontSize(9.5);pdf.setFont('helvetica','bold');pdf.setTextColor(220,220,220);pdf.text(e.deg||'',c2x,y2);y2+=4;pdf.setFontSize(8.5);pdf.setFont('helvetica','normal');pText(pdf,A);pdf.text([e.school,e.year].filter(Boolean).join(' · '),c2x,y2);y2+=4;if(e.grade){pdf.setTextColor(153,153,153);pdf.text(e.grade,c2x,y2);y2+=4;}y2+=2;});}
-  if(d.langs){d2('Languages');pdf.setFontSize(9);pdf.setTextColor(170,170,170);y2=wrapTxt(pdf,d.langs,c2x,y2,c2w,4.5,280)+4;}
-  if(d.awards){d2('Achievements');pdf.setFontSize(8.5);pdf.setTextColor(170,170,170);y2=wrapTxt(pdf,d.awards,c2x,y2,c2w,4,280)+4;}
+  const ds2H=label=>{ pdf.setFontSize(8); pdf.setFont('helvetica','bold'); setTxt(pdf,A); pdf.text(label.toUpperCase(),col2x,y2); setDraw(pdf,A); pdf.setLineWidth(0.3); pdf.line(col2x,y2+1.5,col2x+col2w,y2+1.5); pdf.setFont('helvetica','normal'); y2+=6; };
+  if(d.skills.length){ ds2H('Skills'); d.skills.forEach(sk=>{ if(y2>280)return; pdf.setFillColor(30,30,30); pdf.setDrawColor(ar,ag,ab); pdf.setLineWidth(0.3); pdf.roundedRect(col2x,y2-3.5,col2w,6,1,1,'FD'); pdf.setFontSize(8.5); setTxt(pdf,A); pdf.text(sk,col2x+2,y2+0.5); y2+=7.5; }); y2+=4; }
+  if(d.edu.filter(e=>e.deg||e.school).length){ ds2H('Education'); d.edu.filter(e=>e.deg||e.school).forEach(e=>{ if(y2>280)return; pdf.setFontSize(9.5); pdf.setFont('helvetica','bold'); pdf.setTextColor(220,220,220); pdf.text(e.deg||'',col2x,y2); y2+=4; pdf.setFontSize(8.5); pdf.setFont('helvetica','normal'); setTxt(pdf,A); pdf.text([e.school,e.year].filter(Boolean).join(' · '),col2x,y2); y2+=4; if(e.grade){ pdf.setTextColor(153,153,153); pdf.text(e.grade,col2x,y2); y2+=4; } y2+=2; }); }
+  if(d.langs){ ds2H('Languages'); pdf.setFontSize(9); pdf.setTextColor(170,170,170); y2=wrapText(pdf,d.langs,col2x,y2,col2w,4.5,280)+4; }
+  if(d.awards){ ds2H('Achievements'); pdf.setFontSize(8.5); pdf.setTextColor(170,170,170); y2=wrapText(pdf,d.awards,col2x,y2,col2w,4,280)+4; }
 }
 
 /* ================================================================
-   HTML RESUME VISUAL (preview only)
+   RESUME HTML PREVIEW (visual only — PDF is separate above)
 ================================================================ */
-function buildResume(d,t){
-  const c=t.c,a=t.a;
-  const pH=d.photo?`<img src="${d.photo}" style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);" alt="">`:'' ;
-  const skP=d.skills.map(s=>`<span style="display:inline-block;padding:5px 13px;background:${a}18;color:${c};border-radius:20px;font-size:13px;margin:2px;border:1px solid ${a}40;font-weight:500;">${esc(s)}</span>`).join('');
-  const expH=d.exp.filter(e=>e.role||e.company).map(e=>`<div style="margin-bottom:16px;"><div style="font-size:15px;font-weight:700;color:#111;">${esc(e.role)}</div><div style="font-size:12.5px;color:${a};font-weight:500;margin-top:2px;">${esc(e.company)}${e.dur?' &nbsp;·&nbsp; '+esc(e.dur):''}</div>${e.desc?`<div style="font-size:12px;color:#555;margin-top:5px;line-height:1.75;">${esc(e.desc)}</div>`:''}</div>`).join('');
-  const eduH=d.edu.filter(e=>e.deg||e.school).map(e=>`<div style="margin-bottom:16px;"><div style="font-size:15px;font-weight:700;color:#111;">${esc(e.deg)}</div><div style="font-size:12.5px;color:${a};margin-top:2px;">${esc(e.school)}${e.year?' &nbsp;·&nbsp; '+esc(e.year):''}</div>${e.grade?`<div style="font-size:12px;color:#888;margin-top:2px;">${esc(e.grade)}</div>`:''}</div>`).join('');
-  const refsH=d.refs.filter(r=>r.name).length?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${d.refs.filter(r=>r.name).map(r=>`<div style="background:#f8f9fc;border-radius:6px;padding:12px;"><div style="font-size:13.5px;font-weight:700;">${esc(r.name)}</div>${r.role?`<div style="font-size:12px;color:${a};margin-top:2px;">${esc(r.role)}</div>`:''} ${r.org?`<div style="font-size:12px;color:#666;">${esc(r.org)}</div>`:''} ${r.contact?`<div style="font-size:11.5px;color:#999;">${esc(r.contact)}</div>`:''}</div>`).join('')}</div>`:'';
-  function cBody(s){const ls=(s.body||'').split('\n').filter(l=>l.trim());if(ls.length<=1)return`<div style="font-size:11px;color:#555;line-height:1.75;">${esc(s.body||'')}</div>`;return ls.map(l=>`<div style="font-size:11px;color:#555;padding-left:12px;position:relative;margin-bottom:3px;line-height:1.65;"><span style="position:absolute;left:0;color:${a};">•</span>${esc(l)}</div>`).join('');}
-  const declH=d.decl?`<div style="font-size:11px;color:#555;line-height:1.75;font-style:italic;">${esc(d.decl)}</div><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;flex-wrap:wrap;gap:14px;"><div>${d.sig?`<img src="${d.sig}" style="max-height:38px;max-width:130px;object-fit:contain;display:block;margin-bottom:3px;" alt="Signature">`:'<div style="height:38px;border-bottom:1.5px solid #ccc;width:130px;"></div>'}<div style="font-size:10px;color:#888;margin-top:3px;font-weight:600;">${esc(d.name)}</div></div><div style="text-align:right;font-size:10.5px;color:#777;">${d.dpl?`<div>📍 ${esc(d.dpl)}</div>`:''}${d.ddt?`<div>📅 ${fmtDate(d.ddt)}</div>`:''}</div></div>`:'';
-  const SH=lbl=>`<div style="font-size:15px;font-weight:800;color:${c};border-left:4px solid ${c};padding-left:11px;margin-bottom:13px;letter-spacing:1.5px;text-transform:uppercase;">${lbl}</div>`;
-  const SHS=lbl=>`<div style="font-size:15px;font-weight:800;color:${c};border-bottom:2px solid ${a};display:inline-block;margin-bottom:13px;letter-spacing:1.5px;text-transform:uppercase;">${lbl}</div>`;
-  const ci=[d.email,d.phone,d.loc,d.link].filter(Boolean).map(v=>esc(v)).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+function buildResume(d, t) {
+  const c=t.c, a=t.a;
+  const photoH = d.photo ? `<img src="${d.photo}" style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.3);" alt="">` : '';
+  const skPills = d.skills.map(s=>`<span style="display:inline-block;padding:4px 11px;background:${a}18;color:${c};border-radius:20px;font-size:11px;margin:2px;border:1px solid ${a}40;font-weight:500;">${esc(s)}</span>`).join('');
+  const expH = d.exp.filter(e=>e.role||e.company).map(e=>`<div style="margin-bottom:14px;"><div style="font-size:13px;font-weight:700;color:#111;">${esc(e.role)}</div><div style="font-size:11px;color:${a};font-weight:500;margin-top:2px;">${esc(e.company)}${e.dur?' &nbsp;·&nbsp; '+esc(e.dur):''}</div>${e.desc?`<div style="font-size:11px;color:#555;margin-top:4px;line-height:1.7;">${esc(e.desc)}</div>`:''}</div>`).join('');
+  const eduH = d.edu.filter(e=>e.deg||e.school).map(e=>`<div style="margin-bottom:13px;"><div style="font-size:13px;font-weight:700;color:#111;">${esc(e.deg)}</div><div style="font-size:11px;color:${a};margin-top:2px;">${esc(e.school)}${e.year?' &nbsp;·&nbsp; '+esc(e.year):''}</div>${e.grade?`<div style="font-size:11px;color:#888;margin-top:2px;">${esc(e.grade)}</div>`:''}</div>`).join('');
+  const refsH = d.refs.filter(r=>r.name).length ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${d.refs.filter(r=>r.name).map(r=>`<div style="background:#f8f9fc;border-radius:6px;padding:10px;"><div style="font-size:12px;font-weight:700;">${esc(r.name)}</div>${r.role?`<div style="font-size:10.5px;color:${a};margin-top:2px;">${esc(r.role)}</div>`:''} ${r.org?`<div style="font-size:10.5px;color:#666;">${esc(r.org)}</div>`:''} ${r.contact?`<div style="font-size:10px;color:#999;">${esc(r.contact)}</div>`:''}</div>`).join('')}</div>` : '';
+  const customH = d.custom.filter(s=>s.title).map(s=>{ const lines=(s.body||'').split('\n').filter(l=>l.trim()); return lines.map(l=>`<div style="font-size:11px;color:#555;padding-left:12px;position:relative;margin-bottom:3px;line-height:1.65;"><span style="position:absolute;left:0;color:${a};">•</span>${esc(l)}</div>`).join(''); }).join('');
+  const declH = d.decl ? `<div style="font-size:11px;color:#555;line-height:1.75;font-style:italic;">${esc(d.decl)}</div><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;flex-wrap:wrap;gap:14px;"><div>${d.sig?`<img src="${d.sig}" style="max-height:38px;max-width:130px;object-fit:contain;display:block;margin-bottom:3px;" alt="">` : '<div style="height:38px;border-bottom:1.5px solid #ccc;width:130px;"></div>'}<div style="font-size:10px;color:#888;margin-top:3px;font-weight:600;">${esc(d.name)}</div></div><div style="text-align:right;font-size:10.5px;color:#777;">${d.dpl?`<div>📍 ${esc(d.dpl)}</div>`:''}${d.ddt?`<div>📅 ${esc(d.ddt)}</div>`:''}</div></div>` : '';
+  const SH = label => `<div style="font-size:11px;font-weight:800;color:${c};border-left:4px solid ${c};padding-left:10px;margin-bottom:11px;letter-spacing:1.5px;text-transform:uppercase;">${label}</div>`;
+  const SHS = label => `<div style="font-size:11px;font-weight:800;color:${c};border-bottom:2px solid ${a};display:inline-block;margin-bottom:11px;letter-spacing:1.5px;text-transform:uppercase;">${label}</div>`;
+  const ci = [d.email,d.phone,d.loc,d.link].filter(Boolean).map(v=>esc(v)).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
 
-  if(['sidebar','peach','corp'].includes(t.s)){
-    return`<div style="width:794px;height:1123px;display:flex;background:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;"><div style="width:268px;background:${c};color:#fff;padding:42px 24px;flex-shrink:0;overflow:hidden;">${d.photo?`<div style="text-align:center;margin-bottom:20px;">${pH}</div>`:''}<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase;">Contact</div><div style="font-size:12.5px;line-height:2.1;opacity:.9;word-break:break-word;">${[d.email,d.phone,d.loc,d.link].filter(Boolean).map(v=>esc(v)).join('<br>')}</div>${d.skills.length?`<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;margin:18px 0 8px;letter-spacing:1.5px;text-transform:uppercase;">Skills</div><div style="font-size:12.5px;line-height:2.1;opacity:.9;">${d.skills.map(s=>`□ ${esc(s)}`).join('<br>')}</div>`:''}${d.langs?`<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;margin:18px 0 8px;letter-spacing:1.5px;text-transform:uppercase;">Languages</div><div style="font-size:12.5px;line-height:2.1;opacity:.9;">${esc(d.langs)}</div>`:''}</div><div style="flex:1;padding:48px 38px;overflow:hidden;"><div style="font-size:36px;font-weight:800;color:${c};line-height:1.05;letter-spacing:-1.5px;">${esc(d.name.split(' ')[0]||'')}</div><div style="font-size:36px;font-weight:800;color:#111;line-height:1.05;letter-spacing:-1.5px;margin-bottom:5px;">${esc(d.name.split(' ').slice(1).join(' ')||'')}</div><div style="font-size:11px;letter-spacing:3px;color:#aaa;text-transform:uppercase;margin-bottom:24px;">${esc(d.title)}</div>${d.about?`${SHS('Profile')}<div style="font-size:13px;color:#555;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}${expH?`${SHS('Experience')}<div style="margin-bottom:18px;">${expH}</div>`:''}${eduH?`${SHS('Education')}<div style="margin-bottom:18px;">${eduH}</div>`:''}${d.custom.filter(s=>s.title).map(s=>`${SHS(s.title)}<div style="margin-bottom:16px;">${cBody(s)}</div>`).join('')}${refsH?`${SHS('References')}<div style="margin-bottom:18px;">${refsH}</div>`:''}${d.awards?`${SHS('Achievements')}<div style="font-size:13px;color:#555;line-height:1.75;margin-bottom:18px;">${esc(d.awards)}</div>`:''}${declH?`${SHS('Declaration')}<div>${declH}</div>`:''}</div></div>`;
+  if (['sidebar','peach','corp'].includes(t.s)) {
+    return `<div style="width:794px;height:1123px;display:flex;background:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;">
+      <div style="width:268px;background:${c};color:#fff;padding:42px 24px;flex-shrink:0;overflow:hidden;">
+        ${d.photo?`<div style="text-align:center;margin-bottom:20px;">${photoH}</div>`:''}
+        <div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.25);padding-bottom:6px;margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase;">Contact</div>
+        <div style="font-size:11px;line-height:2;opacity:0.9;word-break:break-word;">${[d.email,d.phone,d.loc,d.link].filter(Boolean).map(v=>esc(v)).join('<br>')}</div>
+        ${d.skills.length?`<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.25);padding-bottom:6px;margin:18px 0 8px;letter-spacing:1.5px;text-transform:uppercase;">Skills</div><div style="font-size:11px;line-height:2;opacity:0.9;">${d.skills.map(s=>`□ ${esc(s)}`).join('<br>')}</div>`:''}
+        ${d.langs?`<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.25);padding-bottom:6px;margin:18px 0 8px;letter-spacing:1.5px;text-transform:uppercase;">Languages</div><div style="font-size:11px;line-height:2;opacity:0.9;">${esc(d.langs)}</div>`:''}
+      </div>
+      <div style="flex:1;padding:48px 38px;overflow:hidden;">
+        <div style="font-size:36px;font-weight:800;color:${c};line-height:1.05;letter-spacing:-1.5px;">${esc(d.name.split(' ')[0]||'')}</div>
+        <div style="font-size:36px;font-weight:800;color:#111;line-height:1.05;letter-spacing:-1.5px;margin-bottom:5px;">${esc(d.name.split(' ').slice(1).join(' ')||'')}</div>
+        <div style="font-size:11px;letter-spacing:3px;color:#aaa;text-transform:uppercase;margin-bottom:24px;">${esc(d.title)}</div>
+        ${d.about?`${SHS('Profile')}<div style="font-size:11.5px;color:#555;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}
+        ${expH?`${SHS('Experience')}<div style="margin-bottom:18px;">${expH}</div>`:''}
+        ${eduH?`${SHS('Education')}<div style="margin-bottom:18px;">${eduH}</div>`:''}
+        ${d.custom.filter(s=>s.title).length?d.custom.filter(s=>s.title).map(s=>`${SHS(s.title)}<div style="margin-bottom:16px;">${(s.body||'').split('\n').filter(l=>l.trim()).map(l=>`<div style="font-size:11px;color:#555;padding-left:12px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:${a};">•</span>${esc(l)}</div>`).join('')}</div>`).join(''):''}
+        ${refsH?`${SHS('References')}<div style="margin-bottom:18px;">${refsH}</div>`:''}
+        ${d.awards?`${SHS('Achievements')}<div style="font-size:11.5px;color:#555;line-height:1.75;margin-bottom:18px;">${esc(d.awards)}</div>`:''}
+        ${declH?`${SHS('Declaration')}<div>${declH}</div>`:''}
+      </div></div>`;
   }
-  if(t.s==='dark'){
-    return`<div style="width:794px;height:1123px;background:#111;color:#eee;font-family:'DM Sans',sans-serif;padding:54px;overflow:hidden;"><div style="border-bottom:1px solid ${a}55;padding-bottom:22px;margin-bottom:22px;"><div style="display:flex;align-items:center;gap:18px;">${d.photo?pH:''}<div><div style="font-size:44px;font-weight:800;color:${a};letter-spacing:-1.5px;line-height:1;">${esc(d.name)}</div><div style="font-size:12px;letter-spacing:3px;color:#666;text-transform:uppercase;margin-top:4px;">${esc(d.title)}</div></div></div><div style="display:flex;gap:16px;margin-top:14px;font-size:12.5px;color:#888;flex-wrap:wrap;">${ci}</div></div><div style="display:grid;grid-template-columns:3fr 2fr;gap:42px;"><div>${d.about?`<div style="font-size:11px;font-weight:800;color:${a};border-left:3px solid ${a};padding-left:9px;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Profile</div><div style="font-size:13px;color:#aaa;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}${expH?`<div style="font-size:11px;font-weight:800;color:${a};border-left:3px solid ${a};padding-left:9px;margin-bottom:11px;letter-spacing:2px;text-transform:uppercase;">Experience</div>${d.exp.filter(e=>e.role||e.company).map(e=>`<div style="margin-bottom:14px;"><div style="font-size:15px;font-weight:700;color:#eee;">${esc(e.role)}</div><div style="font-size:12.5px;color:${a};margin-top:2px;">${esc(e.company)}${e.dur?' · '+esc(e.dur):''}</div><div style="font-size:12px;color:#888;margin-top:5px;line-height:1.75;">${esc(e.desc)}</div></div>`).join('')}`:''}${d.custom.filter(s=>s.title).map(s=>`<div style="font-size:14px;font-weight:800;color:${a};border-left:4px solid ${a};padding-left:10px;margin:15px 0 10px;letter-spacing:2px;text-transform:uppercase;">${esc(s.title)}</div><div style="margin-bottom:12px;">${cBody(s)}</div>`).join('')}</div><div>${d.skills.length?`<div style="font-size:11px;font-weight:800;color:${a};margin-bottom:9px;letter-spacing:2px;text-transform:uppercase;">Skills</div><div style="margin-bottom:18px;">${d.skills.map(s=>`<div style="border:1px solid ${a}55;color:${a};font-size:12.5px;padding:5px 12px;margin:4px 0;display:inline-block;">${esc(s)}</div><br>`).join('')}</div>`:''}${eduH?`<div style="font-size:11px;font-weight:800;color:${a};margin-bottom:9px;letter-spacing:2px;text-transform:uppercase;">Education</div><div>${d.edu.filter(e=>e.deg||e.school).map(e=>`<div style="margin-bottom:11px;"><div style="font-size:15px;color:#eee;font-weight:600;">${esc(e.deg)}</div><div style="font-size:12.5px;color:${a};">${esc(e.school)}${e.year?' · '+esc(e.year):''}</div></div>`).join('')}</div>`:''}${d.langs?`<div style="font-size:14px;font-weight:800;color:${a};margin:15px 0 7px;letter-spacing:2px;text-transform:uppercase;">Languages</div><div style="font-size:13px;color:#aaa;">${esc(d.langs)}</div>`:''}</div></div>${declH?`<div style="margin-top:26px;border-top:1px solid ${a}30;padding-top:16px;"><div style="font-size:11px;font-weight:800;color:${a};margin-bottom:7px;letter-spacing:2px;text-transform:uppercase;">Declaration</div>${declH}</div>`:''}</div>`;
+
+  if (t.s === 'dark') {
+    return `<div style="width:794px;height:1123px;background:#111;color:#eee;font-family:'DM Sans',sans-serif;padding:54px;overflow:hidden;">
+      <div style="border-bottom:1px solid ${a}55;padding-bottom:22px;margin-bottom:22px;">
+        <div style="display:flex;align-items:center;gap:18px;">${d.photo?photoH:''}
+          <div><div style="font-size:38px;font-weight:800;color:${a};letter-spacing:-1.5px;line-height:1;">${esc(d.name)}</div>
+          <div style="font-size:12px;letter-spacing:3px;color:#666;text-transform:uppercase;margin-top:4px;">${esc(d.title)}</div></div>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:12px;font-size:11px;color:#888;flex-wrap:wrap;">${ci}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:3fr 2fr;gap:42px;">
+        <div>
+          ${d.about?`<div style="font-size:11px;font-weight:800;color:${a};border-left:3px solid ${a};padding-left:9px;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Profile</div><div style="font-size:11.5px;color:#aaa;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}
+          ${expH?`<div style="font-size:11px;font-weight:800;color:${a};border-left:3px solid ${a};padding-left:9px;margin-bottom:11px;letter-spacing:2px;text-transform:uppercase;">Experience</div>${d.exp.filter(e=>e.role||e.company).map(e=>`<div style="margin-bottom:14px;"><div style="font-size:13px;font-weight:700;color:#eee;">${esc(e.role)}</div><div style="font-size:11px;color:${a};margin-top:2px;">${esc(e.company)}${e.dur?' · '+esc(e.dur):''}</div><div style="font-size:11px;color:#888;margin-top:4px;line-height:1.7;">${esc(e.desc)}</div></div>`).join('')}`:''}
+          ${d.custom.filter(s=>s.title).length?d.custom.filter(s=>s.title).map(s=>`<div style="font-size:11px;font-weight:800;color:${a};border-left:3px solid ${a};padding-left:9px;margin:13px 0 9px;letter-spacing:2px;text-transform:uppercase;">${esc(s.title)}</div><div style="font-size:11px;color:#aaa;line-height:1.75;">${(s.body||'').split('\n').filter(l=>l.trim()).map(l=>`• ${esc(l)}`).join('<br>')}</div>`).join(''):''}
+        </div>
+        <div>
+          ${d.skills.length?`<div style="font-size:11px;font-weight:800;color:${a};margin-bottom:9px;letter-spacing:2px;text-transform:uppercase;">Skills</div><div style="margin-bottom:18px;">${d.skills.map(s=>`<div style="border:1px solid ${a}55;color:${a};font-size:11px;padding:4px 10px;margin:4px 0;display:inline-block;">${esc(s)}</div><br>`).join('')}</div>`:''}
+          ${eduH?`<div style="font-size:11px;font-weight:800;color:${a};margin-bottom:9px;letter-spacing:2px;text-transform:uppercase;">Education</div><div>${d.edu.filter(e=>e.deg||e.school).map(e=>`<div style="margin-bottom:11px;"><div style="font-size:13px;color:#eee;font-weight:600;">${esc(e.deg)}</div><div style="font-size:11px;color:${a};">${esc(e.school)}${e.year?' · '+esc(e.year):''}</div></div>`).join('')}</div>`:''}
+          ${d.langs?`<div style="font-size:11px;font-weight:800;color:${a};margin:13px 0 6px;letter-spacing:2px;text-transform:uppercase;">Languages</div><div style="font-size:11.5px;color:#aaa;">${esc(d.langs)}</div>`:''}
+        </div>
+      </div>
+      ${declH?`<div style="margin-top:26px;border-top:1px solid ${a}30;padding-top:16px;"><div style="font-size:11px;font-weight:800;color:${a};margin-bottom:7px;letter-spacing:2px;text-transform:uppercase;">Declaration</div>${declH}</div>`:''}</div>`;
   }
-  const hp=t.s==='wavy'?'48px 58px 70px':'44px 58px 36px',hcl=t.s==='wavy'?'clip-path:polygon(0 0,100% 0,100% 86%,0 100%);':'',bT=t.s==='wavy'?'8px':'34px';
-  return`<div style="width:794px;height:1123px;background:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;"><div style="background:${c};padding:${hp};color:#fff;${hcl}"><div style="display:flex;align-items:center;gap:22px;">${d.photo?pH:''}<div><div style="font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1.05;">${esc(d.name)}</div><div style="font-size:14px;opacity:.82;letter-spacing:3px;text-transform:uppercase;margin-top:5px;">${esc(d.title)}</div></div></div><div style="display:flex;gap:16px;margin-top:14px;font-size:12.5px;opacity:.85;flex-wrap:wrap;">${ci}</div></div><div style="padding:${bT} 54px 22px;display:grid;grid-template-columns:3fr 2fr;gap:44px;"><div>${d.about?`${SH('Summary')}<div style="font-size:13px;color:#555;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}${expH?`${SH('Experience')}<div style="margin-bottom:18px;">${expH}</div>`:''}${eduH?`${SH('Education')}<div style="margin-bottom:18px;">${eduH}</div>`:''}${d.custom.filter(s=>s.title).map(s=>`${SH(s.title)}<div style="margin-bottom:16px;">${cBody(s)}</div>`).join('')}${refsH?`${SH('References')}<div style="margin-bottom:18px;">${refsH}</div>`:''}${declH?`${SH('Declaration')}<div style="margin-bottom:14px;">${declH}</div>`:''}</div><div>${d.skills.length?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:9px;letter-spacing:1.5px;text-transform:uppercase;">Skills</div><div style="margin-bottom:18px;">${skP}</div>`:''}${d.langs?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:7px;letter-spacing:1.5px;text-transform:uppercase;">Languages</div><div style="font-size:13px;color:#555;margin-bottom:18px;line-height:1.75;">${esc(d.langs)}</div>`:''}${d.awards?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:7px;letter-spacing:1.5px;text-transform:uppercase;">Achievements</div><div style="font-size:13px;color:#555;line-height:1.75;">${esc(d.awards)}</div>`:''}</div></div></div>`;
+
+  // DEFAULT LAYOUT
+  const hpad = t.s==='wavy' ? '48px 58px 70px' : '44px 58px 36px';
+  const hclip = t.s==='wavy' ? 'clip-path:polygon(0 0,100% 0,100% 86%,0 100%);' : '';
+  const bodyTop = t.s==='wavy' ? '8px' : '34px';
+
+  return `<div style="width:794px;height:1123px;background:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;">
+    <div style="background:${c};padding:${hpad};color:#fff;${hclip}">
+      <div style="display:flex;align-items:center;gap:22px;">
+        ${d.photo && t.s!=='minimal' ? photoH : ''}
+        <div>
+          <div style="font-size:38px;font-weight:800;letter-spacing:-2px;line-height:1.05;">${esc(d.name)}</div>
+          <div style="font-size:12px;opacity:0.82;letter-spacing:3px;text-transform:uppercase;margin-top:4px;">${esc(d.title)}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:13px;font-size:11px;opacity:0.85;flex-wrap:wrap;">${ci}</div>
+    </div>
+    <div style="padding:${bodyTop} 54px 22px;display:grid;grid-template-columns:3fr 2fr;gap:44px;">
+      <div>
+        ${d.about?`${SH('Summary')}<div style="font-size:11.5px;color:#555;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}
+        ${expH?`${SH('Experience')}<div style="margin-bottom:18px;">${expH}</div>`:''}
+        ${eduH?`${SH('Education')}<div style="margin-bottom:18px;">${eduH}</div>`:''}
+        ${d.custom.filter(s=>s.title).length?d.custom.filter(s=>s.title).map(s=>`${SH(s.title)}<div style="margin-bottom:16px;">${(s.body||'').split('\n').filter(l=>l.trim()).map(l=>`<div style="font-size:11px;color:#555;padding-left:12px;position:relative;margin-bottom:3px;line-height:1.65;"><span style="position:absolute;left:0;color:${a};">•</span>${esc(l)}</div>`).join('')}</div>`).join(''):''}
+        ${refsH?`${SH('References')}<div style="margin-bottom:18px;">${refsH}</div>`:''}
+        ${declH?`${SH('Declaration')}<div style="margin-bottom:14px;">${declH}</div>`:''}
+      </div>
+      <div>
+        ${d.skills.length?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:9px;letter-spacing:1.5px;text-transform:uppercase;">Skills</div><div style="margin-bottom:18px;">${skPills}</div>`:''}
+        ${d.langs?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:7px;letter-spacing:1.5px;text-transform:uppercase;">Languages</div><div style="font-size:11.5px;color:#555;margin-bottom:18px;line-height:1.75;">${esc(d.langs)}</div>`:''}
+        ${d.awards?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:7px;letter-spacing:1.5px;text-transform:uppercase;">Achievements</div><div style="font-size:11.5px;color:#555;line-height:1.75;">${esc(d.awards)}</div>`:''}
+      </div>
+    </div></div>`;
 }
 
 /* ================================================================
-   THUMBNAILS
+   TEMPLATE THUMBNAILS
 ================================================================ */
-function thumb(t){
-  const c=t.c,a=t.a;
-  const T={
-    minimal:`<div style="background:#fff;padding:9px;height:100%;box-sizing:border-box;"><div style="border-bottom:2.5px solid ${c};padding-bottom:5px;margin-bottom:5px;"><div style="font-size:8px;font-weight:800;color:#111;">ARJUN SHARMA</div><div style="font-size:5px;color:${c};letter-spacing:2px;">FRONTEND DEVELOPER</div></div><div style="display:flex;gap:5px;"><div style="width:36%;border-right:1px solid #eee;padding-right:5px;"><div style="font-size:4px;font-weight:700;color:${c};margin-bottom:2px;">CONTACT</div><div style="font-size:4px;color:#777;line-height:1.9;">arjun@email.com<br>+91 98765</div><div style="font-size:4px;font-weight:700;color:${c};margin:4px 0 2px;">SKILLS</div><div style="font-size:4px;color:#777;line-height:1.9;">• React<br>• Node.js</div></div><div style="width:64%;"><div style="font-size:4px;font-weight:700;color:${c};margin-bottom:2px;">SUMMARY</div><div style="font-size:4px;color:#888;line-height:1.6;margin-bottom:4px;">Experienced developer.</div><div style="font-size:4px;font-weight:700;color:${c};margin-bottom:2px;">EXPERIENCE</div><div style="font-size:4px;color:#333;font-weight:600;">Senior Dev · TechCorp</div><div style="font-size:3.5px;color:#aaa;">2021–Present</div></div></div></div>`,
-    sidebar:`<div style="display:flex;height:100%;"><div style="width:40%;background:${c};padding:8px 7px;color:#fff;"><div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.2);margin:0 auto 6px;"></div><div style="font-size:4px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:2px;margin-bottom:2px;">CONTACT</div><div style="font-size:3.5px;line-height:1.9;opacity:.9;">arjun@email.com<br>+91 98765</div><div style="font-size:4px;font-weight:700;margin:5px 0 2px;">SKILLS</div><div style="font-size:3.5px;line-height:1.9;opacity:.9;">□ React<br>□ Node.js</div></div><div style="width:60%;padding:8px 7px;background:#fff;"><div style="font-size:8px;font-weight:800;color:${c};line-height:1.1;">ARJUN</div><div style="font-size:8px;font-weight:800;color:#111;margin-bottom:2px;">SHARMA</div><div style="font-size:4px;letter-spacing:2px;color:#aaa;margin-bottom:6px;">Frontend Dev</div><div style="font-size:4px;color:#333;font-weight:600;">Senior Dev · TechCorp</div></div></div>`,
-    wavy:`<div style="background:#fff;height:100%;"><div style="background:${c};padding:10px 9px 18px;clip-path:polygon(0 0,100% 0,100% 80%,0 100%);color:#fff;"><div style="font-size:8px;font-weight:800;">ARJUN SHARMA</div><div style="font-size:5px;opacity:.85;letter-spacing:1.5px;">Frontend Dev</div></div><div style="padding:0 9px 9px;margin-top:-4px;display:grid;grid-template-columns:2fr 1fr;gap:5px;"><div><div style="font-size:4px;font-weight:700;color:${c};border-left:2px solid ${c};padding-left:3px;margin-bottom:2px;">SUMMARY</div><div style="font-size:3.5px;color:#777;line-height:1.6;margin-bottom:4px;">Experienced dev.</div><div style="font-size:4px;font-weight:700;color:${c};border-left:2px solid ${c};padding-left:3px;margin-bottom:2px;">EXPERIENCE</div><div style="font-size:4px;color:#444;font-weight:600;">Senior Dev · TechCorp</div></div><div><div style="font-size:4px;font-weight:700;color:${c};margin-bottom:2px;">SKILLS</div>${['React','Node','Python'].map(s=>`<div style="background:#f3f4f6;font-size:3.5px;padding:2px 4px;margin:2px 0;border-radius:2px;">${s}</div>`).join('')}</div></div></div>`,
-    pro:`<div style="background:#fff;height:100%;"><div style="background:${c};padding:9px 10px;color:#fff;"><div style="font-size:7px;font-weight:800;">ARJUN SHARMA</div><div style="font-size:4.5px;opacity:.8;letter-spacing:2px;margin-top:2px;">FRONTEND DEVELOPER</div><div style="font-size:3.5px;opacity:.85;margin-top:5px;">✉ arjun@email.com</div></div><div style="padding:8px;display:grid;grid-template-columns:3fr 2fr;gap:7px;"><div><div style="font-size:4px;font-weight:700;color:${c};margin-bottom:2px;">EXPERIENCE</div><div style="font-size:4px;color:#333;font-weight:600;">Senior Dev · TechCorp</div></div><div><div style="font-size:4px;font-weight:700;color:${c};margin-bottom:2px;">SKILLS</div>${['React','Node.js','Python'].map(s=>`<div style="background:${c}18;color:${c};font-size:3.5px;padding:2px 4px;border-radius:8px;margin:2px 0;display:inline-block;">${s}</div>`).join('')}</div></div></div>`,
-    dark:`<div style="background:#111;height:100%;padding:9px;"><div style="border-bottom:1px solid ${a}50;padding-bottom:6px;margin-bottom:6px;"><div style="font-size:8px;font-weight:800;color:${a};">ARJUN SHARMA</div><div style="font-size:4.5px;color:#555;letter-spacing:2px;margin-top:1px;">FRONTEND DEV</div></div><div style="display:grid;grid-template-columns:3fr 2fr;gap:7px;"><div><div style="font-size:4px;font-weight:700;color:${a};border-left:2px solid ${a};padding-left:3px;margin-bottom:2px;">EXPERIENCE</div><div style="font-size:4px;color:#ccc;font-weight:600;">Senior Dev · TechCorp</div></div><div><div style="font-size:4px;font-weight:700;color:${a};margin-bottom:2px;">SKILLS</div>${['React','Node','Python'].map(s=>`<div style="border:1px solid ${a}55;color:${a};font-size:3.5px;padding:2px 4px;margin:2px 0;display:inline-block;">${s}</div>`).join('')}</div></div></div>`,
-    corp:`<div style="background:#fff;height:100%;"><div style="background:${c};padding:8px;display:flex;align-items:center;gap:7px;"><div style="flex:1;color:#fff;"><div style="font-size:7px;font-weight:800;">ARJUN SHARMA</div><div style="font-size:4px;opacity:.8;letter-spacing:2px;">FRONTEND DEV</div></div><div style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.2);"></div></div><div style="background:#f0f5ff;border-bottom:1px solid #dde6ff;padding:3px 8px;"><div style="font-size:3.5px;color:${a};">✉ arjun@email.com · 📍 Coimbatore</div></div><div style="padding:7px 8px;"><div style="font-size:4px;font-weight:700;color:${c};border-bottom:2px solid ${a};display:inline-block;margin-bottom:3px;">EXPERIENCE</div><div style="font-size:4px;color:#333;font-weight:600;">Senior Dev · TechCorp · 2021–Present</div></div></div>`,
-    sage:`<div style="background:#f0fdf4;height:100%;"><div style="padding:8px;background:#fff;border-bottom:2.5px solid ${a};"><div style="display:flex;align-items:center;gap:6px;"><div style="width:22px;height:22px;border-radius:50%;background:${a}30;border:2px solid ${a};"></div><div><div style="font-size:7px;font-weight:800;color:${c};">ARJUN SHARMA</div><div style="font-size:4px;color:${a};letter-spacing:1.5px;">FRONTEND DEV</div></div></div></div><div style="padding:8px;display:grid;grid-template-columns:2fr 1fr;gap:5px;"><div><div style="font-size:4px;font-weight:700;color:${c};margin-bottom:2px;">EXPERIENCE</div><div style="font-size:4px;color:#444;font-weight:600;">Senior Dev · TechCorp</div></div><div><div style="font-size:4px;font-weight:700;color:${c};margin-bottom:2px;">SKILLS</div>${['React','Node','Python'].map(s=>`<div style="background:${a}25;color:${c};font-size:3.5px;padding:2px 4px;border-radius:6px;margin:2px 0;display:inline-block;">${s}</div>`).join('')}</div></div></div>`,
-    clean:`<div style="background:#fff;height:100%;"><div style="background:#f9fafb;border-bottom:1px solid #e5e7eb;padding:11px 9px;"><div style="font-size:8px;font-weight:800;color:#111;letter-spacing:-.5px;">Arjun Sharma</div><div style="font-size:4px;color:#888;margin-top:1px;">Frontend Dev · Coimbatore</div></div><div style="padding:9px;"><div style="font-size:4px;color:#bbb;margin-bottom:5px;">arjun@email.com</div><div style="font-size:4px;font-weight:700;color:#111;margin-bottom:2px;">EXPERIENCE</div><div style="font-size:4px;color:#333;font-weight:600;">Senior Developer — TechCorp</div><div style="font-size:3.5px;color:#bbb;">Jan 2021 – Present</div></div></div>`,
-    peach:`<div style="background:#fff7ed;height:100%;"><div style="background:${a};padding:9px;color:#fff;"><div style="font-size:8px;font-weight:800;">Arjun Sharma</div><div style="font-size:4.5px;opacity:.9;letter-spacing:2px;">FRONTEND DEV</div></div><div style="padding:7px;display:flex;gap:5px;"><div style="width:38%;background:#fff;border-radius:4px;padding:5px;"><div style="font-size:4px;font-weight:700;color:${a};margin-bottom:2px;">SKILLS</div>${['React','Node','Python'].map(s=>`<div style="font-size:3.5px;color:#555;line-height:1.9;">◆ ${s}</div>`).join('')}</div><div><div style="font-size:4px;font-weight:700;color:${a};margin-bottom:2px;">EXPERIENCE</div><div style="font-size:4px;color:#333;font-weight:600;">Senior Dev · TechCorp</div></div></div></div>`,
-    curve:`<div style="background:#fff;height:100%;"><div style="background:${c};padding:9px;color:#fff;position:relative;overflow:hidden;"><div style="position:absolute;right:-6px;top:-6px;width:34px;height:34px;border-radius:50%;background:${a}40;"></div><div style="font-size:8px;font-weight:800;position:relative;">ARJUN SHARMA</div><div style="font-size:4.5px;opacity:.8;letter-spacing:2px;position:relative;">FRONTEND DEV</div></div><div style="padding:8px;display:grid;grid-template-columns:3fr 2fr;gap:6px;"><div><div style="font-size:4px;font-weight:700;color:${a};margin-bottom:2px;">EXPERIENCE</div><div style="font-size:4px;color:#333;font-weight:600;">Senior Dev · TechCorp</div></div><div><div style="font-size:4px;font-weight:700;color:${a};margin-bottom:2px;">SKILLS</div>${['React','Node','Python'].map(s=>`<div style="background:${a}18;color:${a};font-size:3.5px;padding:2px 4px;border-radius:8px;margin:2px 0;display:inline-block;">${s}</div>`).join('')}</div></div></div>`,
+function thumb(t) {
+  const c=t.c, a=t.a;
+  const thumbs = {
+    minimal:`<div style="background:#fff;padding:9px;height:100%;box-sizing:border-box;"><div style="border-bottom:2.5px solid ${c};padding-bottom:5px;margin-bottom:5px;"><div style="font-size:8px;font-weight:800;color:#111;">ARJUN SHARMA</div><div style="font-size:5px;color:${c};letter-spacing:2px;text-transform:uppercase;">Frontend Developer</div></div><div style="display:flex;gap:5px;"><div style="width:36%;border-right:1px solid #eee;padding-right:5px;"><div style="font-size:4.5px;font-weight:700;color:${c};margin-bottom:2px;text-transform:uppercase;">Contact</div><div style="font-size:4px;color:#777;line-height:2;">arjun@email.com<br>+91 98765<br>Coimbatore</div><div style="font-size:4.5px;font-weight:700;color:${c};margin:5px 0 2px;text-transform:uppercase;">Skills</div><div style="font-size:4px;color:#777;line-height:2;">• React<br>• Node.js<br>• Python</div></div><div style="width:64%;"><div style="font-size:4.5px;font-weight:700;color:${c};margin-bottom:2px;text-transform:uppercase;">Summary</div><div style="font-size:4px;color:#888;line-height:1.6;margin-bottom:5px;">Experienced dev with 3+ years building web apps.</div><div style="font-size:4.5px;font-weight:700;color:${c};margin-bottom:2px;text-transform:uppercase;">Experience</div><div style="font-size:4.5px;color:#333;font-weight:600;">Senior Dev · TechCorp</div><div style="font-size:4px;color:#aaa;">2021–Present</div></div></div></div>`,
+    sidebar:`<div style="display:flex;height:100%;box-sizing:border-box;"><div style="width:40%;background:${c};padding:9px 7px;color:#fff;"><div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.2);margin:0 auto 7px;"></div><div style="font-size:4.5px;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.25);padding-bottom:3px;margin-bottom:3px;text-transform:uppercase;letter-spacing:1px;">Contact</div><div style="font-size:4px;line-height:1.9;opacity:0.9;">arjun@email.com<br>+91 98765<br>Coimbatore</div><div style="font-size:4.5px;font-weight:700;margin:6px 0 3px;text-transform:uppercase;letter-spacing:1px;">Skills</div><div style="font-size:4px;line-height:1.9;opacity:0.9;">□ React<br>□ Node.js<br>□ Python</div></div><div style="width:60%;padding:9px 8px;background:#fff;"><div style="font-size:8px;font-weight:800;color:${c};line-height:1.1;">ARJUN</div><div style="font-size:8px;font-weight:800;color:#111;margin-bottom:3px;">SHARMA</div><div style="font-size:4.5px;letter-spacing:2px;color:#aaa;margin-bottom:7px;">Frontend Dev</div><div style="font-size:4px;font-weight:700;color:${c};border-bottom:1px solid ${c};display:inline-block;margin-bottom:3px;text-transform:uppercase;">Experience</div><div style="font-size:4.5px;color:#333;font-weight:600;">Senior Dev · TechCorp</div><div style="font-size:4px;color:#aaa;">2021–Present</div></div></div>`,
+    wavy:`<div style="background:#fff;height:100%;box-sizing:border-box;"><div style="background:${c};padding:10px 9px 18px;clip-path:polygon(0 0,100% 0,100% 80%,0 100%);color:#fff;"><div style="font-size:8px;font-weight:800;">ARJUN SHARMA</div><div style="font-size:5px;opacity:0.85;letter-spacing:1.5px;">Frontend Developer</div></div><div style="padding:0 9px 9px;margin-top:-4px;display:grid;grid-template-columns:2fr 1fr;gap:5px;"><div><div style="font-size:4.5px;font-weight:700;color:${c};border-left:2px solid ${c};padding-left:3px;margin-bottom:2px;text-transform:uppercase;">Summary</div><div style="font-size:4px;color:#777;line-height:1.6;margin-bottom:4px;">Experienced dev with expertise in React.</div><div style="font-size:4.5px;font-weight:700;color:${c};border-left:2px solid ${c};padding-left:3px;margin-bottom:2px;text-transform:uppercase;">Experience</div><div style="font-size:4px;color:#444;font-weight:600;">Senior Dev · TechCorp</div></div><div><div style="font-size:4.5px;font-weight:700;color:${c};margin-bottom:2px;text-transform:uppercase;">Skills</div>${['React','Node','Python'].map(s=>`<div style="background:#f3f4f6;font-size:4px;padding:2px 4px;margin:2px 0;border-radius:3px;">${s}</div>`).join('')}</div></div></div>`,
+    pro:`<div style="background:#fff;height:100%;box-sizing:border-box;"><div style="background:${c};padding:9px 10px;color:#fff;"><div style="font-size:8px;font-weight:800;letter-spacing:0.5px;">ARJUN SHARMA</div><div style="font-size:5px;opacity:0.8;letter-spacing:2.5px;margin-top:2px;text-transform:uppercase;">Frontend Developer</div><div style="display:flex;gap:6px;margin-top:7px;font-size:4px;opacity:0.85;"><span>✉ arjun@email.com</span><span>📞 +91 98765</span></div></div><div style="padding:9px;display:grid;grid-template-columns:3fr 2fr;gap:8px;"><div><div style="font-size:4.5px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Experience</div><div style="font-size:4.5px;color:#333;font-weight:600;">Senior Dev · TechCorp</div><div style="font-size:4px;color:#aaa;margin-bottom:4px;">2021–Present</div></div><div><div style="font-size:4.5px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Skills</div>${['React','Node.js','Python'].map(s=>`<div style="background:${c}18;color:${c};font-size:4px;padding:2px 5px;border-radius:10px;margin:2px 0;display:inline-block;">${s}</div>`).join('')}</div></div></div>`,
+    dark:`<div style="background:#111;height:100%;box-sizing:border-box;padding:10px;"><div style="border-bottom:1px solid ${a}50;padding-bottom:7px;margin-bottom:7px;"><div style="font-size:8px;font-weight:800;color:${a};">ARJUN SHARMA</div><div style="font-size:5px;color:#555;letter-spacing:2.5px;text-transform:uppercase;margin-top:1px;">Frontend Developer</div></div><div style="display:grid;grid-template-columns:3fr 2fr;gap:8px;"><div><div style="font-size:4.5px;font-weight:700;color:${a};border-left:2px solid ${a};padding-left:3px;margin-bottom:2px;text-transform:uppercase;">Experience</div><div style="font-size:4.5px;color:#ccc;font-weight:600;">Senior Dev · TechCorp</div><div style="font-size:4px;color:#555;">2021–Present</div></div><div><div style="font-size:4.5px;font-weight:700;color:${a};margin-bottom:3px;text-transform:uppercase;">Skills</div>${['React','Node','Python'].map(s=>`<div style="border:1px solid ${a}55;color:${a};font-size:4px;padding:2px 4px;margin:2px 0;display:inline-block;">${s}</div>`).join('')}</div></div></div>`,
+    corp:`<div style="background:#fff;height:100%;box-sizing:border-box;"><div style="background:${c};padding:9px;display:flex;align-items:center;gap:8px;"><div style="flex:1;color:#fff;"><div style="font-size:7.5px;font-weight:800;">ARJUN SHARMA</div><div style="font-size:4.5px;opacity:0.8;letter-spacing:2px;text-transform:uppercase;">Frontend Dev</div></div><div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.2);"></div></div><div style="background:#f0f5ff;border-bottom:1px solid #dde6ff;padding:4px 9px;"><div style="font-size:3.5px;color:${a};display:flex;gap:8px;"><span>✉ arjun@email.com</span><span>📍 Coimbatore</span></div></div><div style="padding:8px 9px;"><div style="font-size:4.5px;font-weight:700;color:${c};border-bottom:2px solid ${a};display:inline-block;margin-bottom:4px;text-transform:uppercase;">Experience</div><div style="font-size:4.5px;color:#333;font-weight:600;">Senior Dev · TechCorp · 2021–Present</div></div></div>`,
+    sage:`<div style="background:#f0fdf4;height:100%;box-sizing:border-box;"><div style="padding:9px;background:#fff;border-bottom:2.5px solid ${a};"><div style="display:flex;align-items:center;gap:7px;"><div style="width:24px;height:24px;border-radius:50%;background:${a}30;border:2px solid ${a};"></div><div><div style="font-size:7.5px;font-weight:800;color:${c};">ARJUN SHARMA</div><div style="font-size:4.5px;color:${a};letter-spacing:1.5px;text-transform:uppercase;">Frontend Dev</div></div></div></div><div style="padding:9px;display:grid;grid-template-columns:2fr 1fr;gap:6px;"><div><div style="font-size:4.5px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Experience</div><div style="font-size:4.5px;color:#444;font-weight:600;">Senior Dev · TechCorp</div><div style="font-size:4px;color:#aaa;">2021–Present</div></div><div><div style="font-size:4.5px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Skills</div>${['React','Node','Python'].map(s=>`<div style="background:${a}25;color:${c};font-size:4px;padding:2px 5px;border-radius:8px;margin:2px 0;display:inline-block;">${s}</div>`).join('')}</div></div></div>`,
+    clean:`<div style="background:#fff;height:100%;box-sizing:border-box;"><div style="background:#f9fafb;border-bottom:1px solid #e5e7eb;padding:12px 9px 10px;"><div style="font-size:8px;font-weight:800;color:#111;letter-spacing:-0.5px;">Arjun Sharma</div><div style="font-size:4.5px;color:#888;margin-top:1px;">Frontend Dev · Coimbatore</div></div><div style="padding:9px;"><div style="font-size:4px;color:#bbb;margin-bottom:5px;">arjun@email.com · +91 98765</div><div style="font-size:4.5px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Experience</div><div style="font-size:4.5px;color:#333;font-weight:600;">Senior Developer — TechCorp</div><div style="font-size:4px;color:#bbb;">Jan 2021 – Present</div></div></div>`,
+    peach:`<div style="background:#fff7ed;height:100%;box-sizing:border-box;"><div style="background:${a};padding:9px;color:#fff;"><div style="font-size:8px;font-weight:800;">Arjun Sharma</div><div style="font-size:4.5px;opacity:0.9;letter-spacing:2px;text-transform:uppercase;">Frontend Dev</div></div><div style="padding:8px;display:flex;gap:6px;"><div style="width:38%;background:#fff;border-radius:4px;padding:6px;"><div style="font-size:4.5px;font-weight:700;color:${a};text-transform:uppercase;margin-bottom:2px;">Skills</div>${['React','Node','Python'].map(s=>`<div style="font-size:4px;color:#555;line-height:1.9;">◆ ${s}</div>`).join('')}</div><div><div style="font-size:4.5px;font-weight:700;color:${a};text-transform:uppercase;margin-bottom:2px;">Experience</div><div style="font-size:4.5px;color:#333;font-weight:600;">Senior Dev · TechCorp</div><div style="font-size:4px;color:#aaa;">2021–Present</div></div></div></div>`,
+    curve:`<div style="background:#fff;height:100%;box-sizing:border-box;"><div style="background:${c};padding:10px;color:#fff;position:relative;overflow:hidden;"><div style="position:absolute;right:-8px;top:-8px;width:38px;height:38px;border-radius:50%;background:${a}40;"></div><div style="font-size:8px;font-weight:800;position:relative;">ARJUN SHARMA</div><div style="font-size:5px;opacity:0.8;letter-spacing:2px;position:relative;text-transform:uppercase;">Frontend Dev</div></div><div style="padding:9px;display:grid;grid-template-columns:3fr 2fr;gap:7px;"><div><div style="font-size:4.5px;font-weight:700;color:${a};text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Experience</div><div style="font-size:4.5px;color:#333;font-weight:600;">Senior Dev · TechCorp</div><div style="font-size:4px;color:#aaa;margin-bottom:4px;">2021–Present</div></div><div><div style="font-size:4.5px;font-weight:700;color:${a};text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Skills</div>${['React','Node','Python'].map(s=>`<div style="background:${a}18;color:${a};font-size:4px;padding:2px 5px;border-radius:10px;margin:2px 0;display:inline-block;">${s}</div>`).join('')}</div></div></div>`,
   };
-  return T[t.s]||T['minimal'];
+  return thumbs[t.s] || thumbs['minimal'];
 }
 
-/* ---- INIT ---- */
-(function init(){
-  buildGrid();selTpl(S.tplId);
+/* ================================================================
+   INIT
+================================================================ */
+(function init() {
+  buildGrid();
+  selTpl(S.tplId);
+  addExp();
+  addEdu();
   loadData();
-  if(!$id('expBox').querySelector('.entry'))addExp();
-  if(!$id('eduBox').querySelector('.entry'))addEdu();
   liveUpdate();
-  $id('progressLine').style.width='33%';
-  const dt=$id('fddt');if(dt&&!dt.value)dt.value=new Date().toISOString().split('T')[0];
+  initSections();
+  $id('progressLine').style.width = '33%';
+
+  // Set today's date as default for declaration
+  if (!val('fddt')) {
+    const today = new Date().toISOString().split('T')[0];
+    const el = $id('fddt');
+    if (el) el.value = today;
+  }
 })();
 </script>
 </body>
