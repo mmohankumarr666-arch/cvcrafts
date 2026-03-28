@@ -99,6 +99,7 @@ input[type=file]{display:none;}
 .overflow-warn{display:none;background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r8);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#9a3412;align-items:center;gap:8px;}
 .overflow-warn.show{display:flex;}
 
+/* Lock overlay on premium templates in preview */
 .preview-lock{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(248,247,244,0.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:var(--r16);}
 .preview-lock-icon{width:64px;height:64px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-lg);}
 .preview-lock-icon svg{color:#fff;}
@@ -107,6 +108,12 @@ input[type=file]{display:none;}
 .preview-lock .pay-btn-sm{padding:12px 24px;border-radius:var(--r100);background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;transition:all .2s var(--ease);touch-action:manipulation;}
 .preview-lock .pay-btn-sm:hover{background:#b83509;transform:translateY(-1px);box-shadow:0 8px 24px rgba(212,65,11,.35);}
 .resume-shell.locked #resumeScaler{filter:blur(6px);pointer-events:none;user-select:none;}
+
+/* Blurred thumbnail for locked templates */
+.tpl-thumb{aspect-ratio:3/4;overflow:hidden;position:relative;}
+.tpl-thumb-inner{width:100%;height:100%;transition:transform .4s;}
+.tpl-lock-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:rgba(12,12,14,.22);z-index:2;pointer-events:none;}
+.tpl-lock-overlay span{font-size:9px;font-weight:700;color:#fff;letter-spacing:1px;text-shadow:0 1px 4px rgba(0,0,0,.5);}
 
 .form-foot-sticky{display:none;position:fixed;bottom:0;left:0;right:0;padding:12px 16px;padding-bottom:calc(12px + var(--safe-bottom));background:rgba(248,247,244,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--border);z-index:150;gap:10px;align-items:center;}
 @media(max-width:900px){.form-foot-sticky{display:flex;}}
@@ -144,13 +151,11 @@ input[type=file]{display:none;}
 @media(hover:hover){.tpl-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);}}
 .tpl-card:active{transform:scale(.97);}
 .tpl-card.selected{border-color:var(--accent);box-shadow:0 0 0 4px rgba(212,65,11,.14),var(--shadow-md);}
-.tpl-thumb{aspect-ratio:3/4;overflow:hidden;}
-.tpl-thumb-inner{width:100%;height:100%;transition:transform .4s;}
 @media(hover:hover){.tpl-card:hover .tpl-thumb-inner{transform:scale(1.04);}}
-.tpl-badge{position:absolute;top:7px;right:7px;padding:3px 9px;border-radius:var(--r100);font-size:9px;font-weight:700;z-index:1;}
+.tpl-badge{position:absolute;top:7px;right:7px;padding:3px 9px;border-radius:var(--r100);font-size:9px;font-weight:700;z-index:3;}
 .badge-free{background:var(--success-bg);color:var(--success);}
 .badge-paid{background:var(--error-bg);color:var(--error);}
-.tpl-check{position:absolute;top:7px;left:7px;width:24px;height:24px;background:var(--accent);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:12px;z-index:1;box-shadow:0 2px 8px rgba(212,65,11,.4);}
+.tpl-check{position:absolute;top:7px;left:7px;width:24px;height:24px;background:var(--accent);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:12px;z-index:3;box-shadow:0 2px 8px rgba(212,65,11,.4);}
 .tpl-card.selected .tpl-check{display:flex;}
 .tpl-name{padding:9px 11px 3px;font-size:12px;font-weight:600;line-height:1.3;}
 .tpl-price{padding:0 11px 10px;font-size:10px;color:var(--muted);}
@@ -165,18 +170,16 @@ input[type=file]{display:none;}
 .resume-shell::after{content:'';position:absolute;bottom:0;left:0;right:0;height:48px;background:linear-gradient(transparent,rgba(255,255,255,.95));pointer-events:none;opacity:0;transition:opacity .3s;}
 .resume-shell.overflowing::after{opacity:1;}
 
-/* =====================================================
-   FIX 1: Mobile preview — removed display:none !important
-   Media query correctly hides scaler and shows message
-===================================================== */
-.mobile-preview-msg{display:none;padding:32px 24px;text-align:center;}
-.mobile-preview-msg p{color:var(--muted);font-size:14px;line-height:1.65;margin-bottom:20px;}
-@media(max-width:900px){
-  .mobile-preview-msg{display:block;}
-  #resumeScaler{display:none;}
-}
-
+/* ── MOBILE RESUME PREVIEW ─────────────────────────────────
+   Show the real scaled resume on ALL screen sizes.
+   No display:none on #resumeScaler — just overflow:hidden
+   so it doesn't break the page layout on phones.
+   The JS scaleResume() calculates the correct scale ratio
+   from the container's actual pixel width every time.
+──────────────────────────────────────────────────────────── */
+#resumeScaler{width:100%;overflow:hidden;}
 #resumeOut{width:100%;}
+
 .sidebar-card{background:#fff;border-radius:var(--r12);border:1px solid var(--border);padding:22px;margin-bottom:14px;}
 .sidebar-card h3{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;margin-bottom:12px;}
 .tpl-name-big{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:5px;}
@@ -386,20 +389,6 @@ input[type=file]{display:none;}
     </div>
     <div class="p3-grid">
       <div class="resume-shell" id="resumeShell">
-        <div class="mobile-preview-msg" id="mobilePreviewMsg">
-          <p>Resume preview is best on desktop.<br>Your resume is ready — download the PDF below!</p>
-          <button class="dl-btn" onclick="downloadPDF()" style="max-width:280px;margin:0 auto;">
-            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 15V3m0 12l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>Download PDF
-          </button>
-        </div>
-        <div class="mobile-preview-msg" id="mobileLockedMsg" style="display:none;">
-          <div style="font-size:40px;margin-bottom:8px;">🔒</div>
-          <p style="font-weight:600;color:var(--ink);font-size:16px;margin-bottom:6px;">Premium Template</p>
-          <p>Unlock to download your PDF</p>
-          <button class="pay-btn" onclick="initRazorpay()" style="max-width:280px;margin:16px auto 0;font-size:14px;">
-            🔒 Unlock for ₹<span class="mobile-pay-amt">29</span>
-          </button>
-        </div>
         <div id="resumeScaler"><div id="resumeOut"></div></div>
       </div>
       <aside>
@@ -522,7 +511,6 @@ function collectFields(){const ids=['fn','ft','fe','fp','fl','fli','fab','fsk','
 
 const _paidIds=new Set();
 function addPaidId(id){_paidIds.add(id);}
-function hasPaidId(id){return _paidIds.has(id);}
 function getPaidIds(){return[..._paidIds];}
 
 function liveUpdate(){
@@ -610,14 +598,31 @@ function go(n){
 }
 function tryGo(n){if(n<=S.maxPage)go(n);}
 
+/* ── TEMPLATE GRID with blur on locked thumbnails ── */
 function buildGrid(){
   const g=$id('tplGrid');g.innerHTML='';
   TPLS.forEach(t=>{
     const ul=t.amt===0||S.unlocked.has(t.id);
-    const card=document.createElement('div');card.className='tpl-card'+(t.id===S.tplId?' selected':'');card.id='tc_'+t.id;
-    card.setAttribute('tabindex','0');card.setAttribute('role','radio');card.setAttribute('aria-checked',String(t.id===S.tplId));card.setAttribute('aria-label',`${t.name}, ${t.price}`);
-    card.onclick=()=>selTpl(t.id);card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selTpl(t.id);}};
-    card.innerHTML=`<div class="tpl-check" aria-hidden="true">✓</div><span class="tpl-badge ${t.amt===0?'badge-free':'badge-paid'}">${t.price}</span><div class="tpl-thumb"><div class="tpl-thumb-inner tv">${thumb(t)}</div></div><div class="tpl-name">${esc(t.name)}${ul&&t.amt>0?'<span style="font-size:10px;color:var(--success);"> ✓</span>':''}</div><div class="tpl-price">${t.amt===0?'✦ Free':'Premium · '+t.price}</div>`;
+    const locked=t.amt>0&&!ul;
+    const card=document.createElement('div');
+    card.className='tpl-card'+(t.id===S.tplId?' selected':'');
+    card.id='tc_'+t.id;
+    card.setAttribute('tabindex','0');card.setAttribute('role','radio');
+    card.setAttribute('aria-checked',String(t.id===S.tplId));
+    card.setAttribute('aria-label',`${t.name}, ${t.price}`);
+    card.onclick=()=>selTpl(t.id);
+    card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selTpl(t.id);}};
+    const thumbStyle=locked?'filter:blur(3px) brightness(0.88);':'';
+    const lockOverlay=locked?`<div class="tpl-lock-overlay"><span style="font-size:18px;line-height:1;">🔒</span><span>PREMIUM</span></div>`:'';
+    card.innerHTML=`
+      <div class="tpl-check" aria-hidden="true">✓</div>
+      <span class="tpl-badge ${t.amt===0?'badge-free':'badge-paid'}">${t.price}</span>
+      <div class="tpl-thumb">
+        <div class="tpl-thumb-inner tv" style="${thumbStyle}">${thumb(t)}</div>
+        ${lockOverlay}
+      </div>
+      <div class="tpl-name">${esc(t.name)}${ul&&t.amt>0?'<span style="font-size:10px;color:var(--success);"> ✓</span>':''}</div>
+      <div class="tpl-price">${t.amt===0?'✦ Free':'Premium · '+t.price}</div>`;
     g.appendChild(card);
   });
 }
@@ -628,6 +633,7 @@ function selTpl(id){
   const t=TPLS.find(x=>x.id===id);setTxt('selName',t.name);setTxt('selPrice',t.price);saveData();
 }
 
+/* ── GO TO PREVIEW ── */
 function goToPreview(){
   const t=TPLS.find(x=>x.id===S.tplId),d=getData(),ul=t.amt===0||S.unlocked.has(t.id);
   setTxt('p3name',t.name);setTxt('p3_n',d.name);setTxt('p3_r',d.title);setTxt('p3_e',d.email);setTxt('p3_l',d.loc);
@@ -636,7 +642,12 @@ function goToPreview(){
   else{chip.textContent=t.price;chip.className='price-chip chip-paid';$id('dlSection').style.display='none';$id('paySection').style.display='block';setTxt('payAmt',t.amt);}
   $id('p3_sk').innerHTML=d.skills.length?d.skills.map(s=>`<span class="skill-pill">${esc(s)}</span>`).join(''):'<span style="font-size:12px;color:var(--muted)">No skills added yet</span>';
 
-  $id('resumeOut').innerHTML=buildResume(d,t);
+  // ✅ Always render resume — mobile AND desktop
+  // Pass showPhoto=false on mobile so the photo doesn't appear
+  // crowded next to the name in the tiny scaled preview.
+  // The photo still goes into the PDF (S.photo is read separately).
+  const isMobile = window.innerWidth <= 900;
+  $id('resumeOut').innerHTML = buildResume(d, t, !isMobile);
 
   const shell=$id('resumeShell');
   const existingLock=shell.querySelector('.preview-lock');
@@ -654,23 +665,30 @@ function goToPreview(){
       <p>Unlock to view and download your resume as a print-ready PDF</p>
       <button class="pay-btn-sm" onclick="initRazorpay()">🔒 Unlock for ₹${t.amt}</button>`;
     shell.appendChild(lockEl);
-    if($id('mobilePreviewMsg'))$id('mobilePreviewMsg').style.display='none';
-    if($id('mobileLockedMsg')){$id('mobileLockedMsg').style.display='block';const s=$id('mobileLockedMsg').querySelector('.mobile-pay-amt');if(s)s.textContent=t.amt;}
   } else {
     shell.classList.remove('locked');
-    if($id('mobilePreviewMsg'))$id('mobilePreviewMsg').style.display='';
-    if($id('mobileLockedMsg'))$id('mobileLockedMsg').style.display='none';
   }
 
   requestAnimationFrame(scaleResume);
 
   const tot=[d.about?1:0,...d.exp.filter(e=>e.role||e.company).map(()=>1),...d.edu.filter(e=>e.deg||e.school).map(()=>1),d.custom.filter(s=>s.title).length?1:0,d.refs.filter(r=>r.name).length?1:0,d.decl?1:0].reduce((a,b)=>a+b,0);
-  $id('overflowWarn').classList.toggle('show',ul&&tot>6);$id('resumeShell').classList.toggle('overflowing',ul&&tot>6);
+  $id('overflowWarn').classList.toggle('show',ul&&tot>6);
+  $id('resumeShell').classList.toggle('overflowing',ul&&tot>6);
   go(3);
 }
-function scaleResume(){const sc=$id('resumeScaler'),out=$id('resumeOut');if(!sc||!out)return;const s=sc.offsetWidth/794;out.style.cssText=`width:794px;height:1123px;transform:scale(${s});transform-origin:top left;display:block;overflow:hidden;`;sc.style.height=(1123*s)+'px';}
+
+/* ── SCALE RESUME to fit its container on any screen width ── */
+function scaleResume(){
+  const sc=$id('resumeScaler'),out=$id('resumeOut');
+  if(!sc||!out)return;
+  const containerW=sc.offsetWidth||sc.getBoundingClientRect().width||300;
+  const s=containerW/794;
+  out.style.cssText=`width:794px;height:1123px;transform:scale(${s});transform-origin:top left;display:block;overflow:hidden;`;
+  sc.style.height=(1123*s)+'px';
+}
 window.addEventListener('resize',deb(()=>{if(S.page===3)scaleResume();},200));
 
+/* ── RAZORPAY ── */
 function loadRazorpaySDK(cb){
   if(window.Razorpay){cb();return;}
   const s=document.createElement('script');s.src='https://checkout.razorpay.com/v1/checkout.js';
@@ -679,10 +697,7 @@ function loadRazorpaySDK(cb){
 }
 
 async function initRazorpay(){
-  if(!CFG.RAZORPAY_KEY||CFG.RAZORPAY_KEY==='YOUR_RAZORPAY_KEY_ID'){
-    toast('⚠️ Razorpay key not configured. Set CFG.RAZORPAY_KEY.');
-    return;
-  }
+  if(!CFG.RAZORPAY_KEY||CFG.RAZORPAY_KEY==='YOUR_RAZORPAY_KEY_ID'){toast('⚠️ Razorpay key not configured.');return;}
   const t=TPLS.find(x=>x.id===S.tplId);
   const d=getData();
   const btn=$id('payBtn');
@@ -698,8 +713,7 @@ async function initRazorpay(){
       theme:{color:'#d4410b'},
       modal:{ondismiss:()=>{btn.disabled=false;btn.innerHTML=`🔒 Unlock for ₹${t.amt}`;},escape:true,animation:true},
       handler:function(response){
-        const payId=response.razorpay_payment_id;
-        addPaidId(payId);
+        addPaidId(response.razorpay_payment_id);
         S.unlocked.add(t.id);
         saveData();
         buildGrid();selTpl(S.tplId);goToPreview();
@@ -712,7 +726,6 @@ async function initRazorpay(){
       rzp.on('payment.failed',function(response){
         btn.disabled=false;btn.innerHTML=`🔒 Unlock for ₹${t.amt}`;
         toast(`❌ Payment failed: ${response.error.description}. Contact ${CFG.SUPPORT_EMAIL}`);
-        console.error('Razorpay error:',response.error);
       });
       rzp.open();
     }catch(e){
@@ -727,38 +740,26 @@ function closeModal(){$id('successModal').classList.remove('open');}
 $id('successModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-/* =====================================================
-   FIX 2: Circular photo in PDF
-   Pre-process photo on canvas with arc() clip → PNG with
-   transparent corners → true perfect circle in jsPDF.
-   This is the ONLY reliable method across all jsPDF versions.
-===================================================== */
-function makeCircularPhoto(dataUrl, sizePx) {
-  return new Promise(resolve => {
-    if (!dataUrl) { resolve(null); return; }
-    const img = new Image();
-    img.onload = () => {
-      const c = document.createElement('canvas');
-      c.width = sizePx; c.height = sizePx;
-      const ctx = c.getContext('2d');
-      // Circular clip
-      ctx.beginPath();
-      ctx.arc(sizePx / 2, sizePx / 2, sizePx / 2, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.clip();
-      // Centre-crop: use the square portion from the middle of the image
-      const minD = Math.min(img.width, img.height);
-      const sx = (img.width - minD) / 2;
-      const sy = (img.height - minD) / 2;
-      ctx.drawImage(img, sx, sy, minD, minD, 0, 0, sizePx, sizePx);
-      // PNG preserves transparency so corners are invisible in PDF
+/* ── CIRCULAR PHOTO for PDF ── */
+function makeCircularPhoto(dataUrl,sizePx){
+  return new Promise(resolve=>{
+    if(!dataUrl){resolve(null);return;}
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas');c.width=sizePx;c.height=sizePx;
+      const ctx=c.getContext('2d');
+      ctx.beginPath();ctx.arc(sizePx/2,sizePx/2,sizePx/2,0,Math.PI*2);ctx.closePath();ctx.clip();
+      const minD=Math.min(img.width,img.height);
+      const sx=(img.width-minD)/2,sy=(img.height-minD)/2;
+      ctx.drawImage(img,sx,sy,minD,minD,0,0,sizePx,sizePx);
       resolve(c.toDataURL('image/png'));
     };
-    img.onerror = () => resolve(null);
-    img.src = dataUrl;
+    img.onerror=()=>resolve(null);
+    img.src=dataUrl;
   });
 }
 
+/* ── DOWNLOAD PDF ── */
 async function downloadPDF(){
   const _lt=TPLS.find(x=>x.id===S.tplId);
   if(_lt.amt>0&&!S.unlocked.has(_lt.id)){toast('🔒 Unlock this template first to download your PDF');return;}
@@ -766,9 +767,12 @@ async function downloadPDF(){
   $id('pdfLoading').classList.add('open');
   await new Promise(r=>setTimeout(r,50));
   try{
-    const d=getData(),t=TPLS.find(x=>x.id===S.tplId);
-    // Pre-process photo into a perfect circle PNG before PDF generation
-    const circPhoto = await makeCircularPhoto(d.photo, 300);
+    const d=getData();
+    // Always read photo/sig directly from S — safe on mobile
+    d.photo=S.photo||'';
+    d.sig=S.sig||'';
+    const t=TPLS.find(x=>x.id===S.tplId);
+    const circPhoto=await makeCircularPhoto(d.photo,300);
     const{jsPDF}=window.jspdf;
     const pdf=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
     pdf.setFont('helvetica');
@@ -783,30 +787,23 @@ async function downloadPDF(){
 
 /* PDF helpers */
 function hexRgb(h){const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h.replace(/^#([a-f\d])([a-f\d])([a-f\d])$/i,'#$1$1$2$2$3$3'));return r?[parseInt(r[1],16),parseInt(r[2],16),parseInt(r[3],16)]:[30,58,138];}
-function pFill(p,h){const[r,g,b]=hexRgb(h);p.setFillColor(r,g,b);}
 function pDraw(p,h){const[r,g,b]=hexRgb(h);p.setDrawColor(r,g,b);}
 function pText(p,h){const[r,g,b]=hexRgb(h);p.setTextColor(r,g,b);}
 function wrapTxt(p,text,x,y,w,lh,max){p.splitTextToSize(text,w).forEach(l=>{if(y>max)return;p.text(l,x,y);y+=lh;});return y;}
 function secH(p,lbl,x,y,w,ac){pText(p,ac);p.setFontSize(10.5);p.setFont('helvetica','bold');p.text(lbl.toUpperCase(),x,y);pDraw(p,ac);p.setLineWidth(.5);p.line(x,y+1.5,x+w,y+1.5);pText(p,'#111');p.setFont('helvetica','normal');return y+7;}
 
-/* Embed pre-processed circular PNG into PDF. cx/cy = centre mm, r = radius mm */
-function embedCircPhoto(pdf, circPng, cx, cy, r, borderRgb) {
-  if (!circPng) return;
-  try {
-    pdf.addImage(circPng, 'PNG', cx - r, cy - r, r * 2, r * 2);
-    if (borderRgb) {
-      pdf.setDrawColor(...borderRgb);
-      pdf.setLineWidth(0.5);
-      pdf.circle(cx, cy, r - 0.2, 'S');
-    }
-  } catch(e) { console.warn('Photo embed error:', e); }
+function embedCircPhoto(pdf,circPng,cx,cy,r,borderRgb){
+  if(!circPng)return;
+  try{
+    pdf.addImage(circPng,'PNG',cx-r,cy-r,r*2,r*2);
+    if(borderRgb){pdf.setDrawColor(...borderRgb);pdf.setLineWidth(0.5);pdf.circle(cx,cy,r-0.2,'S');}
+  }catch(e){console.warn('Photo embed error:',e);}
 }
 
 function renderDefaultPDF(pdf,d,t,circPhoto){
   const M=10,A=t.c,AC=t.a,[r,g,b]=hexRgb(A);
   pdf.setFillColor(r,g,b);pdf.rect(0,0,210,48,'F');
-  // Circular photo top-right of header
-  const pR=14, pCx=210-M-pR, pCy=24;
+  const pR=14,pCx=210-M-pR,pCy=24;
   embedCircPhoto(pdf,circPhoto,pCx,pCy,pR,[255,255,255]);
   const nW=circPhoto?140:185;
   pdf.setFont('helvetica','bold');pdf.setFontSize(24);pdf.setTextColor(255,255,255);pdf.text(d.name,M,18,{maxWidth:nW});
@@ -830,7 +827,6 @@ function renderDefaultPDF(pdf,d,t,circPhoto){
 function renderSidebarPDF(pdf,d,t,circPhoto){
   const A=t.c,AC=t.a,[r,g,b]=hexRgb(A),SBW=68,M=10,mainX=SBW+10,mainW=210-SBW-M-4;
   pdf.setFillColor(r,g,b);pdf.rect(0,0,SBW,297,'F');
-  // Circular photo centred at top of sidebar
   let nameY=22;
   if(circPhoto){const pR=11,pCx=SBW/2,pCy=14;embedCircPhoto(pdf,circPhoto,pCx,pCy,pR,[255,255,255]);nameY=30;}
   const parts=d.name.split(' ');pdf.setFont('helvetica','bold');pdf.setFontSize(14);pdf.setTextColor(255,255,255);pdf.text(parts[0]||'',M,nameY);
@@ -857,7 +853,6 @@ function renderSidebarPDF(pdf,d,t,circPhoto){
 function renderDarkPDF(pdf,d,t,circPhoto){
   const A=t.a,M=12,c1x=M,c1w=120,c2x=M+124,c2w=66;
   pdf.setFillColor(17,17,17);pdf.rect(0,0,210,297,'F');
-  // Circular photo top-right of dark header
   const pR=13,pCx=210-M-pR,pCy=22;
   embedCircPhoto(pdf,circPhoto,pCx,pCy,pR,null);
   const nW=circPhoto?148:185;
@@ -878,10 +873,15 @@ function renderDarkPDF(pdf,d,t,circPhoto){
   if(d.awards){d2('Achievements');pdf.setFontSize(8.5);pdf.setTextColor(170,170,170);y2=wrapTxt(pdf,d.awards,c2x,y2,c2w,4,280)+4;}
 }
 
-/* HTML visual preview (unchanged from your v5) */
-function buildResume(d,t){
+/* ── HTML VISUAL PREVIEW ──────────────────────────────────────
+   showPhoto flag: true on desktop, false on mobile.
+   On mobile the resume is scaled to ~40% so a photo next to
+   the name looks cramped. The PDF always gets the real photo
+   via S.photo regardless of this flag.
+────────────────────────────────────────────────────────────── */
+function buildResume(d,t,showPhoto=true){
   const c=t.c,a=t.a;
-  const pH=d.photo?`<img src="${d.photo}" style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);" alt="">`:'' ;
+  const pH=(showPhoto&&d.photo)?`<img src="${d.photo}" style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);" alt="">`:'' ;
   const skP=d.skills.map(s=>`<span style="display:inline-block;padding:5px 13px;background:${a}18;color:${c};border-radius:20px;font-size:13px;margin:2px;border:1px solid ${a}40;font-weight:500;">${esc(s)}</span>`).join('');
   const expH=d.exp.filter(e=>e.role||e.company).map(e=>`<div style="margin-bottom:16px;"><div style="font-size:15px;font-weight:700;color:#111;">${esc(e.role)}</div><div style="font-size:12.5px;color:${a};font-weight:500;margin-top:2px;">${esc(e.company)}${e.dur?' &nbsp;·&nbsp; '+esc(e.dur):''}</div>${e.desc?`<div style="font-size:12px;color:#555;margin-top:5px;line-height:1.75;">${esc(e.desc)}</div>`:''}</div>`).join('');
   const eduH=d.edu.filter(e=>e.deg||e.school).map(e=>`<div style="margin-bottom:16px;"><div style="font-size:15px;font-weight:700;color:#111;">${esc(e.deg)}</div><div style="font-size:12.5px;color:${a};margin-top:2px;">${esc(e.school)}${e.year?' &nbsp;·&nbsp; '+esc(e.year):''}</div>${e.grade?`<div style="font-size:12px;color:#888;margin-top:2px;">${esc(e.grade)}</div>`:''}</div>`).join('');
@@ -892,13 +892,15 @@ function buildResume(d,t){
   const SHS=lbl=>`<div style="font-size:15px;font-weight:800;color:${c};border-bottom:2px solid ${a};display:inline-block;margin-bottom:13px;letter-spacing:1.5px;text-transform:uppercase;">${lbl}</div>`;
   const ci=[d.email,d.phone,d.loc,d.link].filter(Boolean).map(v=>esc(v)).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
   if(['sidebar','peach','corp'].includes(t.s)){
-    return`<div style="width:794px;height:1123px;display:flex;background:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;"><div style="width:268px;background:${c};color:#fff;padding:42px 24px;flex-shrink:0;overflow:hidden;">${d.photo?`<div style="text-align:center;margin-bottom:20px;">${pH}</div>`:''}<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase;">Contact</div><div style="font-size:12.5px;line-height:2.1;opacity:.9;word-break:break-word;">${[d.email,d.phone,d.loc,d.link].filter(Boolean).map(v=>esc(v)).join('<br>')}</div>${d.skills.length?`<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;margin:18px 0 8px;letter-spacing:1.5px;text-transform:uppercase;">Skills</div><div style="font-size:12.5px;line-height:2.1;opacity:.9;">${d.skills.map(s=>`□ ${esc(s)}`).join('<br>')}</div>`:''}${d.langs?`<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;margin:18px 0 8px;letter-spacing:1.5px;text-transform:uppercase;">Languages</div><div style="font-size:12.5px;line-height:2.1;opacity:.9;">${esc(d.langs)}</div>`:''}</div><div style="flex:1;padding:48px 38px;overflow:hidden;"><div style="font-size:36px;font-weight:800;color:${c};line-height:1.05;letter-spacing:-1.5px;">${esc(d.name.split(' ')[0]||'')}</div><div style="font-size:36px;font-weight:800;color:#111;line-height:1.05;letter-spacing:-1.5px;margin-bottom:5px;">${esc(d.name.split(' ').slice(1).join(' ')||'')}</div><div style="font-size:11px;letter-spacing:3px;color:#aaa;text-transform:uppercase;margin-bottom:24px;">${esc(d.title)}</div>${d.about?`${SHS('Profile')}<div style="font-size:13px;color:#555;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}${expH?`${SHS('Experience')}<div style="margin-bottom:18px;">${expH}</div>`:''}${eduH?`${SHS('Education')}<div style="margin-bottom:18px;">${eduH}</div>`:''}${d.custom.filter(s=>s.title).map(s=>`${SHS(s.title)}<div style="margin-bottom:16px;">${cBody(s)}</div>`).join('')}${refsH?`${SHS('References')}<div style="margin-bottom:18px;">${refsH}</div>`:''}${d.awards?`${SHS('Achievements')}<div style="font-size:13px;color:#555;line-height:1.75;margin-bottom:18px;">${esc(d.awards)}</div>`:''}${declH?`${SHS('Declaration')}<div>${declH}</div>`:''}</div></div>`;
+    // For sidebar layout photo shows in the sidebar panel, not next to name — always fine
+    const sidebarPhoto=(showPhoto&&d.photo)?`<div style="text-align:center;margin-bottom:20px;">${pH}</div>`:'';
+    return`<div style="width:794px;height:1123px;display:flex;background:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;"><div style="width:268px;background:${c};color:#fff;padding:42px 24px;flex-shrink:0;overflow:hidden;">${sidebarPhoto}<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase;">Contact</div><div style="font-size:12.5px;line-height:2.1;opacity:.9;word-break:break-word;">${[d.email,d.phone,d.loc,d.link].filter(Boolean).map(v=>esc(v)).join('<br>')}</div>${d.skills.length?`<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;margin:18px 0 8px;letter-spacing:1.5px;text-transform:uppercase;">Skills</div><div style="font-size:12.5px;line-height:2.1;opacity:.9;">${d.skills.map(s=>`□ ${esc(s)}`).join('<br>')}</div>`:''}${d.langs?`<div style="font-size:10px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;margin:18px 0 8px;letter-spacing:1.5px;text-transform:uppercase;">Languages</div><div style="font-size:12.5px;line-height:2.1;opacity:.9;">${esc(d.langs)}</div>`:''}</div><div style="flex:1;padding:48px 38px;overflow:hidden;"><div style="font-size:36px;font-weight:800;color:${c};line-height:1.05;letter-spacing:-1.5px;">${esc(d.name.split(' ')[0]||'')}</div><div style="font-size:36px;font-weight:800;color:#111;line-height:1.05;letter-spacing:-1.5px;margin-bottom:5px;">${esc(d.name.split(' ').slice(1).join(' ')||'')}</div><div style="font-size:11px;letter-spacing:3px;color:#aaa;text-transform:uppercase;margin-bottom:24px;">${esc(d.title)}</div>${d.about?`${SHS('Profile')}<div style="font-size:13px;color:#555;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}${expH?`${SHS('Experience')}<div style="margin-bottom:18px;">${expH}</div>`:''}${eduH?`${SHS('Education')}<div style="margin-bottom:18px;">${eduH}</div>`:''}${d.custom.filter(s=>s.title).map(s=>`${SHS(s.title)}<div style="margin-bottom:16px;">${cBody(s)}</div>`).join('')}${refsH?`${SHS('References')}<div style="margin-bottom:18px;">${refsH}</div>`:''}${d.awards?`${SHS('Achievements')}<div style="font-size:13px;color:#555;line-height:1.75;margin-bottom:18px;">${esc(d.awards)}</div>`:''}${declH?`${SHS('Declaration')}<div>${declH}</div>`:''}</div></div>`;
   }
   if(t.s==='dark'){
-    return`<div style="width:794px;height:1123px;background:#111;color:#eee;font-family:'DM Sans',sans-serif;padding:54px;overflow:hidden;"><div style="border-bottom:1px solid ${a}55;padding-bottom:22px;margin-bottom:22px;"><div style="display:flex;align-items:center;gap:18px;">${d.photo?pH:''}<div><div style="font-size:44px;font-weight:800;color:${a};letter-spacing:-1.5px;line-height:1;">${esc(d.name)}</div><div style="font-size:12px;letter-spacing:3px;color:#666;text-transform:uppercase;margin-top:4px;">${esc(d.title)}</div></div></div><div style="display:flex;gap:16px;margin-top:14px;font-size:12.5px;color:#888;flex-wrap:wrap;">${ci}</div></div><div style="display:grid;grid-template-columns:3fr 2fr;gap:42px;"><div>${d.about?`<div style="font-size:11px;font-weight:800;color:${a};border-left:3px solid ${a};padding-left:9px;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Profile</div><div style="font-size:13px;color:#aaa;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}${expH?`<div style="font-size:11px;font-weight:800;color:${a};border-left:3px solid ${a};padding-left:9px;margin-bottom:11px;letter-spacing:2px;text-transform:uppercase;">Experience</div>${d.exp.filter(e=>e.role||e.company).map(e=>`<div style="margin-bottom:14px;"><div style="font-size:15px;font-weight:700;color:#eee;">${esc(e.role)}</div><div style="font-size:12.5px;color:${a};margin-top:2px;">${esc(e.company)}${e.dur?' · '+esc(e.dur):''}</div><div style="font-size:12px;color:#888;margin-top:5px;line-height:1.75;">${esc(e.desc)}</div></div>`).join('')}`:''}${d.custom.filter(s=>s.title).map(s=>`<div style="font-size:14px;font-weight:800;color:${a};border-left:4px solid ${a};padding-left:10px;margin:15px 0 10px;letter-spacing:2px;text-transform:uppercase;">${esc(s.title)}</div><div style="margin-bottom:12px;">${cBody(s)}</div>`).join('')}</div><div>${d.skills.length?`<div style="font-size:11px;font-weight:800;color:${a};margin-bottom:9px;letter-spacing:2px;text-transform:uppercase;">Skills</div><div style="margin-bottom:18px;">${d.skills.map(s=>`<div style="border:1px solid ${a}55;color:${a};font-size:12.5px;padding:5px 12px;margin:4px 0;display:inline-block;">${esc(s)}</div><br>`).join('')}</div>`:''}${eduH?`<div style="font-size:11px;font-weight:800;color:${a};margin-bottom:9px;letter-spacing:2px;text-transform:uppercase;">Education</div><div>${d.edu.filter(e=>e.deg||e.school).map(e=>`<div style="margin-bottom:11px;"><div style="font-size:15px;color:#eee;font-weight:600;">${esc(e.deg)}</div><div style="font-size:12.5px;color:${a};">${esc(e.school)}${e.year?' · '+esc(e.year):''}</div></div>`).join('')}</div>`:''}${d.langs?`<div style="font-size:14px;font-weight:800;color:${a};margin:15px 0 7px;letter-spacing:2px;text-transform:uppercase;">Languages</div><div style="font-size:13px;color:#aaa;">${esc(d.langs)}</div>`:''}</div></div>${declH?`<div style="margin-top:26px;border-top:1px solid ${a}30;padding-top:16px;"><div style="font-size:11px;font-weight:800;color:${a};margin-bottom:7px;letter-spacing:2px;text-transform:uppercase;">Declaration</div>${declH}</div>`:''}</div>`;
+    return`<div style="width:794px;height:1123px;background:#111;color:#eee;font-family:'DM Sans',sans-serif;padding:54px;overflow:hidden;"><div style="border-bottom:1px solid ${a}55;padding-bottom:22px;margin-bottom:22px;"><div style="display:flex;align-items:center;gap:18px;">${pH}<div><div style="font-size:44px;font-weight:800;color:${a};letter-spacing:-1.5px;line-height:1;">${esc(d.name)}</div><div style="font-size:12px;letter-spacing:3px;color:#666;text-transform:uppercase;margin-top:4px;">${esc(d.title)}</div></div></div><div style="display:flex;gap:16px;margin-top:14px;font-size:12.5px;color:#888;flex-wrap:wrap;">${ci}</div></div><div style="display:grid;grid-template-columns:3fr 2fr;gap:42px;"><div>${d.about?`<div style="font-size:11px;font-weight:800;color:${a};border-left:3px solid ${a};padding-left:9px;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Profile</div><div style="font-size:13px;color:#aaa;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}${expH?`<div style="font-size:11px;font-weight:800;color:${a};border-left:3px solid ${a};padding-left:9px;margin-bottom:11px;letter-spacing:2px;text-transform:uppercase;">Experience</div>${d.exp.filter(e=>e.role||e.company).map(e=>`<div style="margin-bottom:14px;"><div style="font-size:15px;font-weight:700;color:#eee;">${esc(e.role)}</div><div style="font-size:12.5px;color:${a};margin-top:2px;">${esc(e.company)}${e.dur?' · '+esc(e.dur):''}</div><div style="font-size:12px;color:#888;margin-top:5px;line-height:1.75;">${esc(e.desc)}</div></div>`).join('')}`:''}${d.custom.filter(s=>s.title).map(s=>`<div style="font-size:14px;font-weight:800;color:${a};border-left:4px solid ${a};padding-left:10px;margin:15px 0 10px;letter-spacing:2px;text-transform:uppercase;">${esc(s.title)}</div><div style="margin-bottom:12px;">${cBody(s)}</div>`).join('')}</div><div>${d.skills.length?`<div style="font-size:11px;font-weight:800;color:${a};margin-bottom:9px;letter-spacing:2px;text-transform:uppercase;">Skills</div><div style="margin-bottom:18px;">${d.skills.map(s=>`<div style="border:1px solid ${a}55;color:${a};font-size:12.5px;padding:5px 12px;margin:4px 0;display:inline-block;">${esc(s)}</div><br>`).join('')}</div>`:''}${eduH?`<div style="font-size:11px;font-weight:800;color:${a};margin-bottom:9px;letter-spacing:2px;text-transform:uppercase;">Education</div><div>${d.edu.filter(e=>e.deg||e.school).map(e=>`<div style="margin-bottom:11px;"><div style="font-size:15px;color:#eee;font-weight:600;">${esc(e.deg)}</div><div style="font-size:12.5px;color:${a};">${esc(e.school)}${e.year?' · '+esc(e.year):''}</div></div>`).join('')}</div>`:''}${d.langs?`<div style="font-size:14px;font-weight:800;color:${a};margin:15px 0 7px;letter-spacing:2px;text-transform:uppercase;">Languages</div><div style="font-size:13px;color:#aaa;">${esc(d.langs)}</div>`:''}</div></div>${declH?`<div style="margin-top:26px;border-top:1px solid ${a}30;padding-top:16px;"><div style="font-size:11px;font-weight:800;color:${a};margin-bottom:7px;letter-spacing:2px;text-transform:uppercase;">Declaration</div>${declH}</div>`:''}</div>`;
   }
   const hp=t.s==='wavy'?'48px 58px 70px':'44px 58px 36px',hcl=t.s==='wavy'?'clip-path:polygon(0 0,100% 0,100% 86%,0 100%);':'',bT=t.s==='wavy'?'8px':'34px';
-  return`<div style="width:794px;height:1123px;background:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;"><div style="background:${c};padding:${hp};color:#fff;${hcl}"><div style="display:flex;align-items:center;gap:22px;">${d.photo?pH:''}<div><div style="font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1.05;">${esc(d.name)}</div><div style="font-size:14px;opacity:.82;letter-spacing:3px;text-transform:uppercase;margin-top:5px;">${esc(d.title)}</div></div></div><div style="display:flex;gap:16px;margin-top:14px;font-size:12.5px;opacity:.85;flex-wrap:wrap;">${ci}</div></div><div style="padding:${bT} 54px 22px;display:grid;grid-template-columns:3fr 2fr;gap:44px;"><div>${d.about?`${SH('Summary')}<div style="font-size:13px;color:#555;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}${expH?`${SH('Experience')}<div style="margin-bottom:18px;">${expH}</div>`:''}${eduH?`${SH('Education')}<div style="margin-bottom:18px;">${eduH}</div>`:''}${d.custom.filter(s=>s.title).map(s=>`${SH(s.title)}<div style="margin-bottom:16px;">${cBody(s)}</div>`).join('')}${refsH?`${SH('References')}<div style="margin-bottom:18px;">${refsH}</div>`:''}${declH?`${SH('Declaration')}<div style="margin-bottom:14px;">${declH}</div>`:''}</div><div>${d.skills.length?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:9px;letter-spacing:1.5px;text-transform:uppercase;">Skills</div><div style="margin-bottom:18px;">${skP}</div>`:''}${d.langs?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:7px;letter-spacing:1.5px;text-transform:uppercase;">Languages</div><div style="font-size:13px;color:#555;margin-bottom:18px;line-height:1.75;">${esc(d.langs)}</div>`:''}${d.awards?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:7px;letter-spacing:1.5px;text-transform:uppercase;">Achievements</div><div style="font-size:13px;color:#555;line-height:1.75;">${esc(d.awards)}</div>`:''}</div></div></div>`;
+  return`<div style="width:794px;height:1123px;background:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;"><div style="background:${c};padding:${hp};color:#fff;${hcl}"><div style="display:flex;align-items:center;gap:22px;">${pH}<div><div style="font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1.05;">${esc(d.name)}</div><div style="font-size:14px;opacity:.82;letter-spacing:3px;text-transform:uppercase;margin-top:5px;">${esc(d.title)}</div></div></div><div style="display:flex;gap:16px;margin-top:14px;font-size:12.5px;opacity:.85;flex-wrap:wrap;">${ci}</div></div><div style="padding:${bT} 54px 22px;display:grid;grid-template-columns:3fr 2fr;gap:44px;"><div>${d.about?`${SH('Summary')}<div style="font-size:13px;color:#555;line-height:1.75;margin-bottom:20px;">${esc(d.about)}</div>`:''}${expH?`${SH('Experience')}<div style="margin-bottom:18px;">${expH}</div>`:''}${eduH?`${SH('Education')}<div style="margin-bottom:18px;">${eduH}</div>`:''}${d.custom.filter(s=>s.title).map(s=>`${SH(s.title)}<div style="margin-bottom:16px;">${cBody(s)}</div>`).join('')}${refsH?`${SH('References')}<div style="margin-bottom:18px;">${refsH}</div>`:''}${declH?`${SH('Declaration')}<div style="margin-bottom:14px;">${declH}</div>`:''}</div><div>${d.skills.length?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:9px;letter-spacing:1.5px;text-transform:uppercase;">Skills</div><div style="margin-bottom:18px;">${skP}</div>`:''}${d.langs?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:7px;letter-spacing:1.5px;text-transform:uppercase;">Languages</div><div style="font-size:13px;color:#555;margin-bottom:18px;line-height:1.75;">${esc(d.langs)}</div>`:''}${d.awards?`<div style="font-size:11px;font-weight:800;color:${c};margin-bottom:7px;letter-spacing:1.5px;text-transform:uppercase;">Achievements</div><div style="font-size:13px;color:#555;line-height:1.75;">${esc(d.awards)}</div>`:''}</div></div></div>`;
 }
 
 function thumb(t){
