@@ -449,7 +449,7 @@ input[type=file]{display:none;}
 'use strict';
 
 const CFG = {
-  RAZORPAY_KEY: 'rzp_live_SWGibaY0OxTRDW',
+  RAZORPAY_KEY: 'YOUR_RAZORPAY_KEY_ID',
   BUSINESS_NAME: 'CVCraft',
   SUPPORT_EMAIL: 'support@cvcraft.in',
 };
@@ -822,7 +822,7 @@ function renderDefaultPDF(pdf,d,t,circPhoto){
     if(d.sig){try{pdf.addImage(d.sig,'JPEG',c1x,y,38,13,undefined,'FAST');y+=15;}catch(e){}}
     pdf.setFont('helvetica','normal');pdf.setFontSize(8);pText(pdf,'#888');pdf.text(d.name,c1x,y+2);}
   let y2=54;
-  if(d.skills.length){y2=secH(pdf,'Skills',c2x,y2,c2w,AC);d.skills.forEach(sk=>{if(y2>280)return;pdf.setFontSize(10);pdf.setFont('helvetica','normal');pText(pdf,A);pdf.text('\u25CF  '+sk,c2x,y2+.5);y2+=5.8;});y2+=4;}
+  if(d.skills.length){y2=secH(pdf,'Skills',c2x,y2,c2w,AC);d.skills.forEach(sk=>{if(y2>280)return;pdf.setFontSize(10);pdf.setFont('helvetica','normal');pText(pdf,A);pdf.text('- '+sk,c2x,y2+.5);y2+=5.8;});y2+=4;}
   if(d.langs){y2=secH(pdf,'Languages',c2x,y2,c2w,AC);pdf.setFontSize(9);pText(pdf,'#444');y2=wrapTxt(pdf,d.langs,c2x,y2,c2w,4.5,280)+4;}
   if(d.awards){y2=secH(pdf,'Achievements',c2x,y2,c2w,AC);pdf.setFontSize(8.5);pText(pdf,'#444');y2=wrapTxt(pdf,d.awards,c2x,y2,c2w,4.5,280)+4;}
 }
